@@ -186,7 +186,7 @@ export default function TeamManager() {
 
       return [
         player.name || "",
-        player.jerseyNumber || "",
+        player.jerseyNumber || player.age || "", // Prefer jerseyNumber, fall back to age
         player.position || "",
         player.assessments?.length || 0,
         latestRating,
@@ -528,7 +528,7 @@ export default function TeamManager() {
                                 <div>
                                   <Label className="text-xs text-muted-foreground mb-1">Jersey #</Label>
                                   <Input
-                                    value={player.jerseyNumber || ""}
+                                    value={player.jerseyNumber || player.age || ""}
                                     onChange={(e) =>
                                       handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)
                                     }
@@ -650,7 +650,7 @@ export default function TeamManager() {
                                 </TableCell>
                                 <TableCell>
                                   <Input
-                                    value={player.jerseyNumber || ""}
+                                    value={player.jerseyNumber || player.age || ""}
                                     onChange={(e) =>
                                       handleUpdatePlayerInfo(
                                         player._id,

@@ -16,6 +16,7 @@ export default defineSchema({
   players: defineTable({
     teamId: v.id("teams"),
     name: v.string(),
+    age: v.optional(v.string()), // Legacy field, use jerseyNumber instead
     jerseyNumber: v.optional(v.string()),
     position: v.optional(v.string()),
     createdAt: v.number(),

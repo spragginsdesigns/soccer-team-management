@@ -59,6 +59,7 @@ export const create = mutation({
   args: {
     teamId: v.id("teams"),
     name: v.string(),
+    age: v.optional(v.string()), // Legacy support
     jerseyNumber: v.optional(v.string()),
     position: v.optional(v.string()),
   },
@@ -67,6 +68,7 @@ export const create = mutation({
     const playerId = await ctx.db.insert("players", {
       teamId: args.teamId,
       name: args.name,
+      age: args.age || "",
       jerseyNumber: args.jerseyNumber || "",
       position: args.position || "",
       createdAt: now,
@@ -81,6 +83,7 @@ export const update = mutation({
   args: {
     id: v.id("players"),
     name: v.optional(v.string()),
+    age: v.optional(v.string()), // Legacy support
     jerseyNumber: v.optional(v.string()),
     position: v.optional(v.string()),
   },
@@ -89,6 +92,7 @@ export const update = mutation({
     const updateData: any = { updatedAt: Date.now() };
 
     if (updates.name !== undefined) updateData.name = updates.name;
+    if (updates.age !== undefined) updateData.age = updates.age;
     if (updates.jerseyNumber !== undefined) updateData.jerseyNumber = updates.jerseyNumber;
     if (updates.position !== undefined) updateData.position = updates.position;
 
