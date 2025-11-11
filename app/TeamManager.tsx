@@ -29,6 +29,8 @@ export default function TeamManager() {
   const [showAddPlayer, setShowAddPlayer] = useState(false);
   const [newPlayerName, setNewPlayerName] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
+  const [showAssessments, setShowAssessments] = useState(false);
+  const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
 
   // Queries
   const team = useQuery(
@@ -134,7 +136,7 @@ export default function TeamManager() {
 
   const handleUpdatePlayerInfo = async (
     playerId: Id<"players">,
-    field: "name" | "age" | "position",
+    field: "name" | "jerseyNumber" | "position",
     value: string
   ) => {
     await updatePlayer({
@@ -165,7 +167,7 @@ export default function TeamManager() {
     // CSV Headers
     const headers = [
       "Player Name",
-      "Age",
+      "Jersey #",
       "Position",
       "Total Assessments",
       "Latest Rating",
@@ -184,7 +186,7 @@ export default function TeamManager() {
 
       return [
         player.name || "",
-        player.age || "",
+        player.jerseyNumber || "",
         player.position || "",
         player.assessments?.length || 0,
         latestRating,
@@ -223,6 +225,11 @@ export default function TeamManager() {
     const shareUrl = `${window.location.origin}/?team=${teamCode}`;
     navigator.clipboard.writeText(shareUrl);
     toast.success("Share link copied to clipboard!");
+  };
+
+  const handleViewAssessments = (player: any) => {
+    setSelectedPlayer(player);
+    setShowAssessments(true);
   };
 
   if (isInitializing) {
@@ -302,6 +309,66 @@ export default function TeamManager() {
                 Cancel
               </Button>
               <Button onClick={confirmAddPlayer} className="h-12">Add Player</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Assessments History Modal */}
+        <Dialog open={showAssessments} onOpenChange={setShowAssessments}>
+          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Assessment History - {selectedPlayer?.name}</DialogTitle>
+              <DialogDescription>
+                View all past assessments and their detailed breakdowns
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-3 py-4">
+              {selectedPlayer?.assessments && selectedPlayer.assessments.length > 0 ? (
+                selectedPlayer.assessments.map((assessment: any, index: number) => (
+                  <Card key={assessment._id} className="overflow-hidden">
+                    <CardContent className="p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant={index === 0 ? "default" : "secondary"}>
+                              {index === 0 ? "Latest" : `#${index + 1}`}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(assessment.date).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            <p className="text-sm">
+                              <span className="text-muted-foreground">Evaluator:</span>{" "}
+                              <span className="font-medium">{assessment.evaluator}</span>
+                            </p>
+                            <p className="text-sm">
+                              <span className="text-muted-foreground">Overall Rating:</span>{" "}
+                              <span className="text-xl font-bold text-primary">
+                                {assessment.overallRating.toFixed(1)}
+                              </span>
+                            </p>
+                          </div>
+                        </div>
+                        <Button asChild>
+                          <Link href={`/assessment-details/${assessment._id}?team=${teamCode}`}>
+                            View Details
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No assessments yet</p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowAssessments(false)}>
+                Close
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -456,16 +523,16 @@ export default function TeamManager() {
                                 />
                               </div>
 
-                              {/* Age & Position */}
+                              {/* Jersey # & Position */}
                               <div className="grid grid-cols-2 gap-2">
                                 <div>
-                                  <Label className="text-xs text-muted-foreground mb-1">Age</Label>
+                                  <Label className="text-xs text-muted-foreground mb-1">Jersey #</Label>
                                   <Input
-                                    value={player.age || ""}
+                                    value={player.jerseyNumber || ""}
                                     onChange={(e) =>
-                                      handleUpdatePlayerInfo(player._id, "age", e.target.value)
+                                      handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)
                                     }
-                                    placeholder="Age"
+                                    placeholder="Jersey #"
                                     className="h-11"
                                   />
                                 </div>
@@ -486,7 +553,11 @@ export default function TeamManager() {
                               <div className="flex items-center justify-around py-3 bg-muted/50 rounded-lg">
                                 <div className="text-center">
                                   <p className="text-xs text-muted-foreground mb-1">Assessments</p>
-                                  <Badge variant="secondary" className="text-base px-3 py-1">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-base px-3 py-1 cursor-pointer hover:bg-secondary/80"
+                                    onClick={() => handleViewAssessments(player)}
+                                  >
                                     {player.assessments?.length || 0}
                                   </Badge>
                                 </div>
@@ -551,7 +622,7 @@ export default function TeamManager() {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Player Name</TableHead>
-                            <TableHead>Age</TableHead>
+                            <TableHead>Jersey #</TableHead>
                             <TableHead>Position</TableHead>
                             <TableHead className="text-center">Assessments</TableHead>
                             <TableHead className="text-center">Latest Rating</TableHead>
@@ -579,15 +650,15 @@ export default function TeamManager() {
                                 </TableCell>
                                 <TableCell>
                                   <Input
-                                    value={player.age || ""}
+                                    value={player.jerseyNumber || ""}
                                     onChange={(e) =>
                                       handleUpdatePlayerInfo(
                                         player._id,
-                                        "age",
+                                        "jerseyNumber",
                                         e.target.value
                                       )
                                     }
-                                    placeholder="Age"
+                                    placeholder="Jersey #"
                                     className="w-20"
                                   />
                                 </TableCell>
@@ -606,7 +677,11 @@ export default function TeamManager() {
                                   />
                                 </TableCell>
                                 <TableCell className="text-center">
-                                  <Badge variant="secondary">
+                                  <Badge
+                                    variant="secondary"
+                                    className="cursor-pointer hover:bg-secondary/80"
+                                    onClick={() => handleViewAssessments(player)}
+                                  >
                                     {player.assessments?.length || 0}
                                   </Badge>
                                 </TableCell>

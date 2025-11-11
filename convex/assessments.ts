@@ -1,6 +1,15 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+// Get a single assessment by ID
+export const getById = query({
+  args: { id: v.id("assessments") },
+  handler: async (ctx, args) => {
+    const assessment = await ctx.db.get(args.id);
+    return assessment;
+  },
+});
+
 // Get all assessments for a player
 export const getByPlayer = query({
   args: { playerId: v.id("players") },

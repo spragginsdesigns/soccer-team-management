@@ -16,7 +16,7 @@ export default defineSchema({
   players: defineTable({
     teamId: v.id("teams"),
     name: v.string(),
-    age: v.optional(v.string()),
+    jerseyNumber: v.optional(v.string()),
     position: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
