@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
 const categories = [
@@ -54,12 +54,9 @@ const categories = [
   },
 ];
 
-export default function AssessmentPage({
-  params,
-}: {
-  params: { playerId: string };
-}) {
+export default function AssessmentPage() {
   const router = useRouter();
+  const params = useParams();
   const playerId = params.playerId as Id<"players">;
 
   const [assessmentDate, setAssessmentDate] = useState(
