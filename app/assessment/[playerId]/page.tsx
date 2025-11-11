@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const categories = [
   {
@@ -143,7 +144,7 @@ export default function AssessmentPage() {
       overallRating,
     });
 
-    alert("Assessment saved!");
+    toast.success("Assessment saved successfully!");
     router.push("/");
   };
 

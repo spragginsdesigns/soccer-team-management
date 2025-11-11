@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Users, Plus, Save, Download, Share2, LogOut, Trophy, TrendingUp, TrendingDown, User, Calendar } from "lucide-react";
+import { toast } from "sonner";
 
 export default function TeamManager() {
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function TeamManager() {
 
   const handleSubmitTeamCode = async () => {
     if (!teamCodeInput.trim()) {
-      alert("Please enter a team code");
+      toast.error("Please enter a team code");
       return;
     }
 
@@ -110,7 +111,7 @@ export default function TeamManager() {
         name: teamName,
         evaluator: evaluator,
       });
-      alert("Team data saved successfully!");
+      toast.success("Team data saved successfully!");
     }
   };
 
@@ -157,7 +158,7 @@ export default function TeamManager() {
 
   const exportData = () => {
     if (!players || players.length === 0) {
-      alert("No players to export!");
+      toast.error("No players to export!");
       return;
     }
 
@@ -221,7 +222,7 @@ export default function TeamManager() {
   const handleCopyShareLink = () => {
     const shareUrl = `${window.location.origin}/?team=${teamCode}`;
     navigator.clipboard.writeText(shareUrl);
-    alert("Share link copied to clipboard!");
+    toast.success("Share link copied to clipboard!");
   };
 
   if (isInitializing) {

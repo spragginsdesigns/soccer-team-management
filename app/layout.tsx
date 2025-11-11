@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Soccer Team Assessment Manager",
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gray-100">
         <ConvexClientProvider>{children}</ConvexClientProvider>
+        <Toaster />
       </body>
     </html>
   );
