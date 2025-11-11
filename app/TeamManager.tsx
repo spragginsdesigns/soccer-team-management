@@ -155,23 +155,66 @@ export default function TeamManager() {
   };
 
   const exportData = () => {
-    const data = {
-      teamCode,
-      teamName,
-      evaluator,
-      players: players || [],
-      exportDate: new Date().toISOString(),
-    };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {
-      type: "application/json",
+    if (!players || players.length === 0) {
+      alert("No players to export!");
+      return;
+    }
+
+    // CSV Headers
+    const headers = [
+      "Player Name",
+      "Age",
+      "Position",
+      "Total Assessments",
+      "Latest Rating",
+      "Progress",
+      "Last Assessment Date",
+      "Last Evaluator"
+    ];
+
+    // Convert players to CSV rows
+    const rows = players.map((player) => {
+      const progress = getPlayerProgress(player);
+      const latestRating = getPlayerLatestRating(player);
+      const latestAssessment = player.assessments && player.assessments.length > 0
+        ? player.assessments[0]
+        : null;
+
+      return [
+        player.name || "",
+        player.age || "",
+        player.position || "",
+        player.assessments?.length || 0,
+        latestRating,
+        progress !== null ? (progress > "0" ? "+" : "") + progress : "N/A",
+        latestAssessment?.date || "N/A",
+        latestAssessment?.evaluator || "N/A"
+      ];
     });
+
+    // Add team info at the top
+    const csvContent = [
+      [`Team: ${teamName || teamCode}`],
+      [`Coach: ${evaluator}`],
+      [`Export Date: ${new Date().toLocaleString()}`],
+      [`Team Code: ${teamCode}`],
+      [], // Empty row
+      headers,
+      ...rows
+    ]
+      .map(row => row.map(cell => `"${cell}"`).join(","))
+      .join("\n");
+
+    // Create and download CSV
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${teamCode || "team"}-assessments-${
+    a.download = `${teamCode || "team"}-roster-${
       new Date().toISOString().split("T")[0]
-    }.json`;
+    }.csv`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleCopyShareLink = () => {
@@ -346,7 +389,7 @@ export default function TeamManager() {
               </Button>
               <Button onClick={exportData} variant="outline" size="lg">
                 <Download className="h-5 w-5 mr-2" />
-                Export
+                Export CSV
               </Button>
             </div>
 
