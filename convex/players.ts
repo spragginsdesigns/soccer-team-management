@@ -65,15 +65,19 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     const now = Date.now();
-    const playerId = await ctx.db.insert("players", {
+    const playerData: any = {
       teamId: args.teamId,
       name: args.name,
-      age: args.age || "",
-      jerseyNumber: args.jerseyNumber || "",
-      position: args.position || "",
       createdAt: now,
       updatedAt: now,
-    });
+    };
+
+    // Only set optional fields if they're provided
+    if (args.age !== undefined) playerData.age = args.age;
+    if (args.jerseyNumber !== undefined) playerData.jerseyNumber = args.jerseyNumber;
+    if (args.position !== undefined) playerData.position = args.position;
+
+    const playerId = await ctx.db.insert("players", playerData);
     return playerId;
   },
 });
@@ -91,9 +95,16 @@ export const update = mutation({
     const { id, ...updates } = args;
     const updateData: any = { updatedAt: Date.now() };
 
+    // Only update fields that are explicitly provided
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.age !== undefined) updateData.age = updates.age;
-    if (updates.jerseyNumber !== undefined) updateData.jerseyNumber = updates.jerseyNumber;
+    if (updates.jerseyNumber !== undefined) {
+      updateData.jerseyNumber = updates.jerseyNumber;
+      // Clear legacy age field when updating jerseyNumber
+      if (updates.jerseyNumber !== "" && updates.age === undefined) {
+        updateData.age = undefined;
+      }
+    }
     if (updates.position !== undefined) updateData.position = updates.position;
 
     await ctx.db.patch(id, updateData);
