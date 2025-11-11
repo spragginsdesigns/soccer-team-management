@@ -17,15 +17,39 @@ export const getById = query({
   },
 });
 
+// Get a team by team code
+export const getByTeamCode = query({
+  args: { teamCode: v.string() },
+  handler: async (ctx, args) => {
+    const team = await ctx.db
+      .query("teams")
+      .withIndex("by_team_code", (q) => q.eq("teamCode", args.teamCode))
+      .first();
+    return team;
+  },
+});
+
 // Create a new team
 export const create = mutation({
   args: {
+    teamCode: v.string(),
     name: v.string(),
     evaluator: v.string(),
   },
   handler: async (ctx, args) => {
+    // Check if team code already exists
+    const existing = await ctx.db
+      .query("teams")
+      .withIndex("by_team_code", (q) => q.eq("teamCode", args.teamCode))
+      .first();
+
+    if (existing) {
+      throw new Error("Team code already exists. Please choose a different code.");
+    }
+
     const now = Date.now();
     const teamId = await ctx.db.insert("teams", {
+      teamCode: args.teamCode,
       name: args.name,
       evaluator: args.evaluator,
       createdAt: now,

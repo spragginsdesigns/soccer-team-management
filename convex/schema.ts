@@ -3,12 +3,15 @@ import { v } from "convex/values";
 
 export default defineSchema({
   teams: defineTable({
+    teamCode: v.string(), // Unique code to identify this team (e.g., "Eagles2025")
     name: v.string(),
     evaluator: v.string(),
     createdAt: v.number(),
     updatedAt: v.number(),
     userId: v.optional(v.string()), // For future auth integration
-  }).index("by_user", ["userId"]),
+  })
+    .index("by_user", ["userId"])
+    .index("by_team_code", ["teamCode"]),
 
   players: defineTable({
     teamId: v.id("teams"),
