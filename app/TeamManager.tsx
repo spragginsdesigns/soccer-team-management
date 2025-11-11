@@ -6,6 +6,14 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Users, Plus, Save, Download, Share2, LogOut, Trophy, TrendingUp, TrendingDown } from "lucide-react";
 
 export default function TeamManager() {
   const router = useRouter();
@@ -41,7 +49,6 @@ export default function TeamManager() {
   useEffect(() => {
     if (!isInitializing) return;
 
-    // Check URL params first
     const urlTeamCode = searchParams.get("team");
     if (urlTeamCode) {
       setTeamCode(urlTeamCode);
@@ -50,22 +57,18 @@ export default function TeamManager() {
       return;
     }
 
-    // Check localStorage
     const savedTeamCode = localStorage.getItem("teamCode");
     if (savedTeamCode) {
       setTeamCode(savedTeamCode);
-      // Update URL to include team code for easy sharing
       router.push(`/?team=${savedTeamCode}`);
       setIsInitializing(false);
       return;
     }
 
-    // No team code found, show modal
     setShowTeamCodeModal(true);
     setIsInitializing(false);
   }, [isInitializing, searchParams, router]);
 
-  // Update local state when team data loads
   useEffect(() => {
     if (team) {
       setTeamName(team.name);
@@ -80,22 +83,15 @@ export default function TeamManager() {
     }
 
     const code = teamCodeInput.trim().toUpperCase().replace(/\s+/g, "");
-
-    // Save to state and localStorage
     setTeamCode(code);
     localStorage.setItem("teamCode", code);
-
-    // Update URL
     router.push(`/?team=${code}`);
-
     setShowTeamCodeModal(false);
     setTeamCodeInput("");
   };
 
-  // Create team if it doesn't exist yet
   useEffect(() => {
     if (teamCode && team === null && !isInitializing) {
-      // Team code is set but team doesn't exist, create it
       createTeam({
         teamCode,
         name: "",
@@ -117,10 +113,6 @@ export default function TeamManager() {
     }
   };
 
-  const handleAddPlayer = () => {
-    setShowAddPlayer(true);
-  };
-
   const confirmAddPlayer = async () => {
     if (newPlayerName.trim() && team) {
       await createPlayer({
@@ -130,11 +122,6 @@ export default function TeamManager() {
       setNewPlayerName("");
       setShowAddPlayer(false);
     }
-  };
-
-  const cancelAddPlayer = () => {
-    setNewPlayerName("");
-    setShowAddPlayer(false);
   };
 
   const handleDeletePlayer = async (playerId: Id<"players">) => {
@@ -187,17 +174,12 @@ export default function TeamManager() {
     a.click();
   };
 
-  const handleChangeTeamCode = () => {
-    setShowTeamCodeModal(true);
-  };
-
   const handleCopyShareLink = () => {
     const shareUrl = `${window.location.origin}/?team=${teamCode}`;
     navigator.clipboard.writeText(shareUrl);
     alert("Share link copied to clipboard!");
   };
 
-  // Show loading only while truly initializing
   if (isInitializing) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -207,295 +189,314 @@ export default function TeamManager() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white min-h-screen">
-      {/* Team Code Modal */}
-      {showTeamCodeModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Enter Team Code</h3>
-            <p className="text-gray-600 mb-4">
-              Enter your team code to access your team&apos;s data. Share this code with other coaches to give them access.
-            </p>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Team Code
-            </label>
-            <input
-              type="text"
-              value={teamCodeInput}
-              onChange={(e) => setTeamCodeInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && handleSubmitTeamCode()}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 uppercase"
-              placeholder="e.g., EAGLES2025"
-              autoFocus
-            />
-            <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4 text-sm">
-              <p className="text-blue-800">
-                💡 <strong>Tip:</strong> Choose a memorable code like &quot;EAGLES2025&quot; or &quot;PANTHERS-U12&quot;
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8">
+        {/* Team Code Modal */}
+        <Dialog open={showTeamCodeModal} onOpenChange={setShowTeamCodeModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">Enter Team Code</DialogTitle>
+              <DialogDescription>
+                Enter your team code to access your team&apos;s data. Share this code with other coaches.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="teamCode">Team Code</Label>
+                <Input
+                  id="teamCode"
+                  value={teamCodeInput}
+                  onChange={(e) => setTeamCodeInput(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleSubmitTeamCode()}
+                  placeholder="e.g., EAGLES2025"
+                  className="uppercase"
+                  autoFocus
+                />
+              </div>
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="pt-4">
+                  <p className="text-sm text-blue-800">
+                    💡 <strong>Tip:</strong> Choose a memorable code like &quot;EAGLES2025&quot; or &quot;PANTHERS-U12&quot;
+                  </p>
+                </CardContent>
+              </Card>
             </div>
-            <button
-              onClick={handleSubmitTeamCode}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
-            >
-              Continue
-            </button>
-          </div>
-        </div>
-      )}
+            <DialogFooter>
+              <Button onClick={handleSubmitTeamCode} className="w-full">
+                Continue
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Add Player Modal */}
-      {showAddPlayer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-xl font-bold mb-4">Add New Player</h3>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Player Name
-            </label>
-            <input
-              type="text"
-              value={newPlayerName}
-              onChange={(e) => setNewPlayerName(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && confirmAddPlayer()}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
-              placeholder="Enter player name"
-              autoFocus
-            />
-            <div className="flex gap-2">
-              <button
-                onClick={confirmAddPlayer}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded"
-              >
-                Add Player
-              </button>
-              <button
-                onClick={cancelAddPlayer}
-                className="flex-1 bg-gray-400 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded"
-              >
+        {/* Add Player Modal */}
+        <Dialog open={showAddPlayer} onOpenChange={setShowAddPlayer}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Player</DialogTitle>
+              <DialogDescription>
+                Add a player to your team roster
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="playerName">Player Name</Label>
+                <Input
+                  id="playerName"
+                  value={newPlayerName}
+                  onChange={(e) => setNewPlayerName(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && confirmAddPlayer()}
+                  placeholder="Enter player name"
+                  autoFocus
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setShowAddPlayer(false)}>
                 Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+              </Button>
+              <Button onClick={confirmAddPlayer}>Add Player</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
-      {/* Main Content - Only show if we have a team code */}
-      {teamCode && (
-        <>
-          <div className="mb-6 border-b-4 border-green-600 pb-4">
-            <div className="flex justify-between items-start mb-2">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                  Team Assessment Manager
-                </h1>
-                <p className="text-gray-600">
-                  Track your team&apos;s development throughout the season
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="bg-green-100 border border-green-300 rounded px-3 py-2 mb-2">
-                  <p className="text-xs text-green-700 font-semibold">TEAM CODE</p>
-                  <p className="text-lg font-bold text-green-900">{teamCode}</p>
+        {/* Main Content */}
+        {teamCode && (
+          <>
+            {/* Header */}
+            <div className="mb-8">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <Trophy className="h-10 w-10 text-primary" />
+                    <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                      Team Assessment Manager
+                    </h1>
+                  </div>
+                  <p className="text-muted-foreground text-lg">
+                    Track your team&apos;s development throughout the season
+                  </p>
                 </div>
-                <button
-                  onClick={handleCopyShareLink}
-                  className="text-sm text-green-600 hover:text-green-700 font-semibold"
-                >
-                  📋 Copy Share Link
-                </button>
-                <br />
-                <button
-                  onClick={handleChangeTeamCode}
-                  className="text-sm text-gray-600 hover:text-gray-700"
-                >
-                  Switch Team
-                </button>
+                <Card className="bg-gradient-to-br from-primary to-emerald-600 text-primary-foreground border-0">
+                  <CardContent className="p-4">
+                    <p className="text-xs font-semibold opacity-90">TEAM CODE</p>
+                    <p className="text-2xl font-bold mb-3">{teamCode}</p>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={handleCopyShareLink}
+                        className="w-full"
+                      >
+                        <Share2 className="h-4 w-4 mr-2" />
+                        Copy Share Link
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowTeamCodeModal(true)}
+                        className="w-full hover:bg-white/20"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Switch Team
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-lg">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Team Name
-              </label>
-              <input
-                type="text"
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Enter team name"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Coach/Evaluator Name
-              </label>
-              <input
-                type="text"
-                value={evaluator}
-                onChange={(e) => setEvaluator(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                placeholder="Your name"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={handleAddPlayer}
-              className="flex-1 min-w-[200px] bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2"
-            >
-              <span>➕</span>
-              Add Player
-            </button>
-            <button
-              onClick={handleSaveTeamData}
-              className="flex-1 min-w-[200px] bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2"
-            >
-              <span>💾</span>
-              Save Team Data
-            </button>
-            <button
-              onClick={exportData}
-              className="flex-1 min-w-[200px] bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2"
-            >
-              <span>⬇️</span>
-              Export
-            </button>
-          </div>
-
-          <div className="bg-white border border-gray-300 rounded-lg overflow-hidden">
-            <div className="bg-green-600 text-white px-4 py-3 flex items-center gap-2">
-              <span className="text-2xl">👥</span>
-              <h2 className="text-xl font-bold">
-                Team Roster ({players?.length || 0} players)
-              </h2>
+            {/* Team Info Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Team Name</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    value={teamName}
+                    onChange={(e) => setTeamName(e.target.value)}
+                    placeholder="Enter team name"
+                  />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Coach/Evaluator</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Input
+                    value={evaluator}
+                    onChange={(e) => setEvaluator(e.target.value)}
+                    placeholder="Your name"
+                  />
+                </CardContent>
+              </Card>
             </div>
 
-            {!players || players.length === 0 ? (
-              <div className="p-8 text-center text-gray-500">
-                <div className="text-6xl mb-4">⚽</div>
-                <p className="text-lg">
-                  No players added yet. Click &quot;Add Player&quot; to get started!
-                </p>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-3 text-left">Player Name</th>
-                      <th className="px-4 py-3 text-left">Age</th>
-                      <th className="px-4 py-3 text-left">Position</th>
-                      <th className="px-4 py-3 text-center">Assessments</th>
-                      <th className="px-4 py-3 text-center">Latest Rating</th>
-                      <th className="px-4 py-3 text-center">Progress</th>
-                      <th className="px-4 py-3 text-center">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {players.map((player) => {
-                      const progress = getPlayerProgress(player);
-                      return (
-                        <tr
-                          key={player._id}
-                          className="border-t border-gray-200 hover:bg-gray-50"
-                        >
-                          <td className="px-4 py-3">
-                            <input
-                              type="text"
-                              value={player.name}
-                              onChange={(e) =>
-                                handleUpdatePlayerInfo(
-                                  player._id,
-                                  "name",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2 py-1 border border-gray-300 rounded"
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <input
-                              type="text"
-                              value={player.age || ""}
-                              onChange={(e) =>
-                                handleUpdatePlayerInfo(
-                                  player._id,
-                                  "age",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2 py-1 border border-gray-300 rounded"
-                              placeholder="Age"
-                            />
-                          </td>
-                          <td className="px-4 py-3">
-                            <input
-                              type="text"
-                              value={player.position || ""}
-                              onChange={(e) =>
-                                handleUpdatePlayerInfo(
-                                  player._id,
-                                  "position",
-                                  e.target.value
-                                )
-                              }
-                              className="w-full px-2 py-1 border border-gray-300 rounded"
-                              placeholder="Position"
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
-                              {player.assessments?.length || 0}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="font-bold text-lg">
-                              {getPlayerLatestRating(player)}
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {progress !== null && (
-                              <span
-                                className={`font-semibold ${
-                                  parseFloat(progress) >= 0
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {parseFloat(progress) >= 0 ? "📈" : "📉"}{" "}
-                                {progress > "0" ? "+" : ""}
-                                {progress}
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className="flex gap-2 justify-center">
-                              <Link
-                                href={`/assessment/${player._id}?team=${teamCode}`}
-                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-semibold text-sm"
-                              >
-                                Assess
-                              </Link>
-                              <button
-                                onClick={() => handleDeletePlayer(player._id)}
-                                className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded"
-                              >
-                                🗑️
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </>
-      )}
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              <Button onClick={() => setShowAddPlayer(true)} size="lg">
+                <Plus className="h-5 w-5 mr-2" />
+                Add Player
+              </Button>
+              <Button onClick={handleSaveTeamData} variant="secondary" size="lg">
+                <Save className="h-5 w-5 mr-2" />
+                Save Team Data
+              </Button>
+              <Button onClick={exportData} variant="outline" size="lg">
+                <Download className="h-5 w-5 mr-2" />
+                Export
+              </Button>
+            </div>
+
+            {/* Team Roster */}
+            <Card>
+              <CardHeader className="bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Users className="h-6 w-6" />
+                    <CardTitle className="text-2xl">Team Roster</CardTitle>
+                  </div>
+                  <Badge variant="secondary" className="text-lg px-4 py-1">
+                    {players?.length || 0} players
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="p-0">
+                {!players || players.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <div className="text-8xl mb-4">⚽</div>
+                    <p className="text-xl text-muted-foreground">
+                      No players added yet
+                    </p>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Click &quot;Add Player&quot; to get started!
+                    </p>
+                    <Button onClick={() => setShowAddPlayer(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Your First Player
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Player Name</TableHead>
+                          <TableHead>Age</TableHead>
+                          <TableHead>Position</TableHead>
+                          <TableHead className="text-center">Assessments</TableHead>
+                          <TableHead className="text-center">Latest Rating</TableHead>
+                          <TableHead className="text-center">Progress</TableHead>
+                          <TableHead className="text-center">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {players.map((player) => {
+                          const progress = getPlayerProgress(player);
+                          return (
+                            <TableRow key={player._id} className="hover:bg-muted/50">
+                              <TableCell>
+                                <Input
+                                  value={player.name}
+                                  onChange={(e) =>
+                                    handleUpdatePlayerInfo(
+                                      player._id,
+                                      "name",
+                                      e.target.value
+                                    )
+                                  }
+                                  className="max-w-[200px]"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  value={player.age || ""}
+                                  onChange={(e) =>
+                                    handleUpdatePlayerInfo(
+                                      player._id,
+                                      "age",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Age"
+                                  className="w-20"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  value={player.position || ""}
+                                  onChange={(e) =>
+                                    handleUpdatePlayerInfo(
+                                      player._id,
+                                      "position",
+                                      e.target.value
+                                    )
+                                  }
+                                  placeholder="Position"
+                                  className="w-28"
+                                />
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <Badge variant="secondary">
+                                  {player.assessments?.length || 0}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                <span className="text-lg font-bold">
+                                  {getPlayerLatestRating(player)}
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {progress !== null && (
+                                  <div className="flex items-center justify-center gap-1">
+                                    {parseFloat(progress) >= 0 ? (
+                                      <TrendingUp className="h-4 w-4 text-green-600" />
+                                    ) : (
+                                      <TrendingDown className="h-4 w-4 text-red-600" />
+                                    )}
+                                    <span
+                                      className={`font-semibold ${
+                                        parseFloat(progress) >= 0
+                                          ? "text-green-600"
+                                          : "text-red-600"
+                                      }`}
+                                    >
+                                      {progress > "0" ? "+" : ""}
+                                      {progress}
+                                    </span>
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex gap-2 justify-center">
+                                  <Button asChild size="sm">
+                                    <Link href={`/assessment/${player._id}?team=${teamCode}`}>
+                                      Assess
+                                    </Link>
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDeletePlayer(player._id)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
     </div>
   );
 }
