@@ -4,8 +4,8 @@ import { ConvexClientProvider } from "./ConvexClientProvider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
-  title: "Soccer Team Assessment Manager",
-  description: "Track your soccer team's development throughout the season",
+  title: "PlayMaker",
+  description: "Track your team's development throughout the season",
 };
 
 export default function RootLayout({

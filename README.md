@@ -1,6 +1,6 @@
-# Soccer Team Assessment Manager
+# PlayMaker
 
-A modern web application for tracking soccer player development and team assessments.
+A modern web application for tracking player development and team assessments.
 
 ## Features
 
