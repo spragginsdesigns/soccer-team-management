@@ -1,7 +1,9 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
+  ...authTables,
   teams: defineTable({
     teamCode: v.string(), // Unique code to identify this team (e.g., "Eagles2025")
     name: v.string(),

@@ -1,10 +1,25 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
-// Get all players for a team
+// Helper to verify team ownership
+async function verifyTeamOwnership(ctx: any, teamId: any) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) return null;
+
+  const team = await ctx.db.get(teamId);
+  if (!team || team.userId !== userId) return null;
+
+  return { userId, team };
+}
+
+// Get all players for a team (must own the team)
 export const getByTeam = query({
   args: { teamId: v.id("teams") },
   handler: async (ctx, args) => {
+    const ownership = await verifyTeamOwnership(ctx, args.teamId);
+    if (!ownership) return [];
+
     const players = await ctx.db
       .query("players")
       .withIndex("by_team", (q) => q.eq("teamId", args.teamId))
@@ -32,12 +47,19 @@ export const getByTeam = query({
   },
 });
 
-// Get a single player with their assessments
+// Get a single player with their assessments (must own the team)
 export const getById = query({
   args: { playerId: v.id("players") },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+
     const player = await ctx.db.get(args.playerId);
     if (!player) return null;
+
+    // Verify ownership of the team
+    const team = await ctx.db.get(player.teamId);
+    if (!team || team.userId !== userId) return null;
 
     const assessments = await ctx.db
       .query("assessments")
@@ -54,7 +76,7 @@ export const getById = query({
   },
 });
 
-// Create a new player
+// Create a new player (must own the team)
 export const create = mutation({
   args: {
     teamId: v.id("teams"),
@@ -64,6 +86,11 @@ export const create = mutation({
     position: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const ownership = await verifyTeamOwnership(ctx, args.teamId);
+    if (!ownership) {
+      throw new Error("Not authenticated or team not found");
+    }
+
     const now = Date.now();
     const playerData: any = {
       teamId: args.teamId,
@@ -82,7 +109,7 @@ export const create = mutation({
   },
 });
 
-// Update player info
+// Update player info (must own the team)
 export const update = mutation({
   args: {
     id: v.id("players"),
@@ -92,6 +119,22 @@ export const update = mutation({
     position: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const player = await ctx.db.get(args.id);
+    if (!player) {
+      throw new Error("Player not found");
+    }
+
+    // Verify ownership of the team
+    const team = await ctx.db.get(player.teamId);
+    if (!team || team.userId !== userId) {
+      throw new Error("Access denied");
+    }
+
     const { id, ...updates } = args;
     const updateData: any = { updatedAt: Date.now() };
 
@@ -112,10 +155,26 @@ export const update = mutation({
   },
 });
 
-// Delete a player and all their assessments
+// Delete a player and all their assessments (must own the team)
 export const remove = mutation({
   args: { id: v.id("players") },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const player = await ctx.db.get(args.id);
+    if (!player) {
+      throw new Error("Player not found");
+    }
+
+    // Verify ownership of the team
+    const team = await ctx.db.get(player.teamId);
+    if (!team || team.userId !== userId) {
+      throw new Error("Access denied");
+    }
+
     // Delete all assessments for this player
     const assessments = await ctx.db
       .query("assessments")
