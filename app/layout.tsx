@@ -3,6 +3,7 @@ import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Toaster } from "@/components/ui/sonner";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "FormUp",
@@ -28,6 +29,7 @@ export default function RootLayout({
         <body className="bg-gray-100">
           <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster />
+          <Analytics />
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

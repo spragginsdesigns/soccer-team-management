@@ -13,9 +13,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Users, Plus, Save, Download, Trophy, TrendingUp, TrendingDown, Calendar, ChevronLeft } from "lucide-react";
+import { Users, Plus, Save, Download, TrendingUp, TrendingDown, Calendar, ChevronLeft, Trash2, Eye } from "lucide-react";
 import { toast } from "sonner";
-import { SignOutButton } from "@/components/auth/SignOutButton";
 
 export default function TeamManager() {
   const [selectedTeamId, setSelectedTeamId] = useState<Id<"teams"> | null>(null);
@@ -205,557 +204,490 @@ export default function TeamManager() {
   // Loading state
   if (teams === undefined) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading...</div>
+      <div className="flex items-center justify-center h-96">
+        <div className="text-xl text-slate-600">Loading...</div>
       </div>
     );
   }
 
-  // Team selection view
+  // Team selection view (Dashboard)
   if (!selectedTeamId) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-        <div className="max-w-4xl mx-auto p-4 md:p-8">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div className="flex items-center gap-3">
-              <Trophy className="h-10 w-10 text-primary" />
-              <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  FormUp
-                </h1>
-                <p className="text-muted-foreground">Select a team to manage</p>
+      <div className="p-6">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+          <p className="text-slate-600 mt-1">Manage your teams and track player development</p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="flex gap-3 mb-8">
+          <Button onClick={() => setShowCreateTeam(true)} className="bg-emerald-600 hover:bg-emerald-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Create Team
+          </Button>
+        </div>
+
+        {/* Teams Grid */}
+        {teams.length === 0 ? (
+          <Card className="text-center py-16 bg-white">
+            <CardContent>
+              <div className="text-6xl mb-4">⚽</div>
+              <h2 className="text-2xl font-semibold text-slate-900 mb-2">No teams yet</h2>
+              <p className="text-slate-600 mb-6">
+                Create your first team to start tracking player development
+              </p>
+              <Button size="lg" onClick={() => setShowCreateTeam(true)} className="bg-emerald-600 hover:bg-emerald-700">
+                <Plus className="h-5 w-5 mr-2" />
+                Create Your First Team
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {teams.map((team) => (
+              <Card
+                key={team._id}
+                className="cursor-pointer hover:shadow-lg transition-all hover:border-emerald-300 bg-white"
+                onClick={() => setSelectedTeamId(team._id)}
+              >
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-slate-900">
+                    <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-emerald-600" />
+                    </div>
+                    <span>{team.name || "Unnamed Team"}</span>
+                  </CardTitle>
+                  <CardDescription>
+                    {team.evaluator ? `Coach: ${team.evaluator}` : "No coach assigned"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-slate-500">
+                      Created {new Date(team.createdAt).toLocaleDateString()}
+                    </span>
+                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                      View Team
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* Create Team Modal */}
+        <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
+          <DialogContent className="bg-white">
+            <DialogHeader>
+              <DialogTitle>Create New Team</DialogTitle>
+              <DialogDescription>
+                Enter a name for your new team
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="newTeamName">Team Name</Label>
+                <Input
+                  id="newTeamName"
+                  value={newTeamName}
+                  onChange={(e) => setNewTeamName(e.target.value)}
+                  onKeyPress={(e) => e.key === "Enter" && handleCreateTeam()}
+                  placeholder="e.g., Eagles U12"
+                  className="h-12"
+                  autoFocus
+                />
               </div>
             </div>
-            <SignOutButton variant="outline" />
-          </div>
-
-          {/* Teams Grid */}
-          {teams.length === 0 ? (
-            <Card className="text-center py-12">
-              <CardContent>
-                <div className="text-6xl mb-4">⚽</div>
-                <h2 className="text-2xl font-semibold mb-2">No teams yet</h2>
-                <p className="text-muted-foreground mb-6">
-                  Create your first team to start tracking player development
-                </p>
-                <Button size="lg" onClick={() => setShowCreateTeam(true)}>
-                  <Plus className="h-5 w-5 mr-2" />
-                  Create Your First Team
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                {teams.map((team) => (
-                  <Card
-                    key={team._id}
-                    className="cursor-pointer hover:shadow-lg transition-shadow"
-                    onClick={() => setSelectedTeamId(team._id)}
-                  >
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-primary" />
-                        {team.name || "Unnamed Team"}
-                      </CardTitle>
-                      <CardDescription>
-                        {team.evaluator ? `Coach: ${team.evaluator}` : "No coach assigned"}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-muted-foreground">
-                        Created {new Date(team.createdAt).toLocaleDateString()}
-                      </p>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              <Button onClick={() => setShowCreateTeam(true)} size="lg" className="w-full md:w-auto">
-                <Plus className="h-5 w-5 mr-2" />
-                Create New Team
+            <DialogFooter className="gap-2 sm:gap-0">
+              <Button variant="outline" onClick={() => setShowCreateTeam(false)}>
+                Cancel
               </Button>
-            </>
-          )}
-
-          {/* Create Team Modal */}
-          <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create New Team</DialogTitle>
-                <DialogDescription>
-                  Enter a name for your new team
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="newTeamName">Team Name</Label>
-                  <Input
-                    id="newTeamName"
-                    value={newTeamName}
-                    onChange={(e) => setNewTeamName(e.target.value)}
-                    onKeyPress={(e) => e.key === "Enter" && handleCreateTeam()}
-                    placeholder="e.g., Eagles U12"
-                    className="h-12"
-                    autoFocus
-                  />
-                </div>
-              </div>
-              <DialogFooter className="gap-2 sm:gap-0">
-                <Button variant="outline" onClick={() => setShowCreateTeam(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleCreateTeam}>Create Team</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </div>
+              <Button onClick={handleCreateTeam} className="bg-emerald-600 hover:bg-emerald-700">
+                Create Team
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
 
   // Team management view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6 lg:p-8">
-        {/* Add Player Modal */}
-        <Dialog open={showAddPlayer} onOpenChange={setShowAddPlayer}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Add New Player</DialogTitle>
-              <DialogDescription>
-                Add a player to your team roster
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="playerName">Player Name</Label>
-                <Input
-                  id="playerName"
-                  value={newPlayerName}
-                  onChange={(e) => setNewPlayerName(e.target.value)}
-                  onKeyPress={(e) => e.key === "Enter" && confirmAddPlayer()}
-                  placeholder="Enter player name"
-                  className="h-12 text-base"
-                  autoFocus
-                />
-              </div>
-            </div>
-            <DialogFooter className="gap-2 sm:gap-0">
-              <Button variant="outline" onClick={() => setShowAddPlayer(false)} className="h-12">
-                Cancel
-              </Button>
-              <Button onClick={confirmAddPlayer} className="h-12">Add Player</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Assessments History Modal */}
-        <Dialog open={showAssessments} onOpenChange={setShowAssessments}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Assessment History - {selectedPlayer?.name}</DialogTitle>
-              <DialogDescription>
-                View all past assessments and their detailed breakdowns
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-3 py-4">
-              {selectedPlayer?.assessments && selectedPlayer.assessments.length > 0 ? (
-                selectedPlayer.assessments.map((assessment: any, index: number) => (
-                  <Card key={assessment._id} className="overflow-hidden">
-                    <CardContent className="p-4">
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant={index === 0 ? "default" : "secondary"}>
-                              {index === 0 ? "Latest" : `#${index + 1}`}
-                            </Badge>
-                            <span className="text-sm text-muted-foreground">
-                              {new Date(assessment.date).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <div className="space-y-1">
-                            <p className="text-sm">
-                              <span className="text-muted-foreground">Evaluator:</span>{" "}
-                              <span className="font-medium">{assessment.evaluator}</span>
-                            </p>
-                            <p className="text-sm">
-                              <span className="text-muted-foreground">Overall Rating:</span>{" "}
-                              <span className="text-xl font-bold text-primary">
-                                {assessment.overallRating.toFixed(1)}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                        <Button asChild>
-                          <Link href={`/assessment-details/${assessment._id}`}>
-                            View Details
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">No assessments yet</p>
-                </div>
-              )}
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowAssessments(false)}>
-                Close
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-
-        {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <div className="flex flex-col gap-4">
-            {/* Back button and title */}
-            <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                onClick={() => setSelectedTeamId(null)}
-                className="gap-2"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                All Teams
-              </Button>
-              <SignOutButton variant="outline" size="sm" />
-            </div>
-
-            {/* Title Section */}
-            <div className="text-center sm:text-left">
-              <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 mb-2">
-                <Trophy className="h-8 w-8 sm:h-10 sm:w-10 text-primary flex-shrink-0" />
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  FormUp
-                </h1>
-              </div>
-              <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
-                Track your team&apos;s development
-              </p>
+    <div className="p-6">
+      {/* Modals */}
+      <Dialog open={showAddPlayer} onOpenChange={setShowAddPlayer}>
+        <DialogContent className="bg-white">
+          <DialogHeader>
+            <DialogTitle>Add New Player</DialogTitle>
+            <DialogDescription>
+              Add a player to your team roster
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="playerName">Player Name</Label>
+              <Input
+                id="playerName"
+                value={newPlayerName}
+                onChange={(e) => setNewPlayerName(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && confirmAddPlayer()}
+                placeholder="Enter player name"
+                className="h-12"
+                autoFocus
+              />
             </div>
           </div>
-        </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowAddPlayer(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmAddPlayer} className="bg-emerald-600 hover:bg-emerald-700">
+              Add Player
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-        {/* Team Info Cards */}
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 mb-4 sm:mb-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">Team Name</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input
-                value={teamName}
-                onChange={(e) => setTeamName(e.target.value)}
-                placeholder="Enter team name"
-                className="h-11 sm:h-10"
-              />
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base sm:text-lg">Coach/Evaluator</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input
-                value={evaluator}
-                onChange={(e) => setEvaluator(e.target.value)}
-                placeholder="Your name"
-                className="h-11 sm:h-10"
-              />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 sm:gap-3 mb-4 sm:mb-6">
-          <Button onClick={() => setShowAddPlayer(true)} size="lg" className="h-12 sm:h-11 w-full">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Player
-          </Button>
-          <Button onClick={handleSaveTeamData} variant="secondary" size="lg" className="h-12 sm:h-11 w-full">
-            <Save className="h-5 w-5 mr-2" />
-            Save Data
-          </Button>
-          <Button onClick={exportData} variant="outline" size="lg" className="h-12 sm:h-11 w-full">
-            <Download className="h-5 w-5 mr-2" />
-            Export CSV
-          </Button>
-          <Button onClick={handleDeleteTeam} variant="destructive" size="lg" className="h-12 sm:h-11 w-full">
-            Delete Team
-          </Button>
-        </div>
-
-        {/* Team Roster */}
-        <Card>
-          <CardHeader className="bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6" />
-                <CardTitle className="text-lg sm:text-xl md:text-2xl">Team Roster</CardTitle>
-              </div>
-              <Badge variant="secondary" className="text-sm sm:text-base px-3 py-1">
-                {players?.length || 0}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {!players || players.length === 0 ? (
-              <div className="p-8 sm:p-12 text-center">
-                <div className="text-6xl sm:text-8xl mb-4">⚽</div>
-                <p className="text-lg sm:text-xl text-muted-foreground mb-2">
-                  No players added yet
-                </p>
-                <p className="text-sm text-muted-foreground mb-6">
-                  Click &quot;Add Player&quot; to get started!
-                </p>
-                <Button onClick={() => setShowAddPlayer(true)} size="lg" className="h-12">
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add Your First Player
-                </Button>
-              </div>
-            ) : (
-              <>
-                {/* Mobile View - Cards */}
-                <div className="block lg:hidden">
-                  {players.map((player) => {
-                    const progress = getPlayerProgress(player);
-                    const latestRating = getPlayerLatestRating(player);
-
-                    return (
-                      <div key={player._id} className="border-b last:border-b-0">
-                        <div className="p-4 space-y-3">
-                          {/* Player Name - Editable */}
-                          <div>
-                            <Label className="text-xs text-muted-foreground mb-1">Player Name</Label>
-                            <Input
-                              value={player.name}
-                              onChange={(e) =>
-                                handleUpdatePlayerInfo(player._id, "name", e.target.value)
-                              }
-                              className="font-semibold text-base h-11"
-                            />
-                          </div>
-
-                          {/* Jersey # & Position */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-1">Jersey #</Label>
-                              <Input
-                                value={player.jerseyNumber ?? player.age ?? ""}
-                                onChange={(e) =>
-                                  handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)
-                                }
-                                placeholder="Jersey #"
-                                className="h-11"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground mb-1">Position</Label>
-                              <Input
-                                value={player.position || ""}
-                                onChange={(e) =>
-                                  handleUpdatePlayerInfo(player._id, "position", e.target.value)
-                                }
-                                placeholder="Position"
-                                className="h-11"
-                              />
-                            </div>
-                          </div>
-
-                          {/* Stats */}
-                          <div className="flex items-center justify-around py-3 bg-muted/50 rounded-lg">
-                            <div className="text-center">
-                              <p className="text-xs text-muted-foreground mb-1">Assessments</p>
-                              <Badge
-                                variant="secondary"
-                                className="text-base px-3 py-1 cursor-pointer hover:bg-secondary/80"
-                                onClick={() => handleViewAssessments(player)}
-                              >
-                                {player.assessments?.length || 0}
-                              </Badge>
-                            </div>
-                            <Separator orientation="vertical" className="h-10" />
-                            <div className="text-center">
-                              <p className="text-xs text-muted-foreground mb-1">Rating</p>
-                              <p className="text-xl font-bold">{latestRating}</p>
-                            </div>
-                            {progress !== null && (
-                              <>
-                                <Separator orientation="vertical" className="h-10" />
-                                <div className="text-center">
-                                  <p className="text-xs text-muted-foreground mb-1">Progress</p>
-                                  <div className="flex items-center justify-center gap-1">
-                                    {parseFloat(progress) >= 0 ? (
-                                      <TrendingUp className="h-4 w-4 text-green-600" />
-                                    ) : (
-                                      <TrendingDown className="h-4 w-4 text-red-600" />
-                                    )}
-                                    <span
-                                      className={`font-semibold ${
-                                        parseFloat(progress) >= 0
-                                          ? "text-green-600"
-                                          : "text-red-600"
-                                      }`}
-                                    >
-                                      {progress > "0" ? "+" : ""}
-                                      {progress}
-                                    </span>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button asChild size="lg" className="h-12 w-full">
-                              <Link href={`/assessment/${player._id}`}>
-                                <Calendar className="h-4 w-4 mr-2" />
-                                Assess
-                              </Link>
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="lg"
-                              onClick={() => handleDeletePlayer(player._id)}
-                              className="h-12 w-full"
-                            >
-                              Delete
-                            </Button>
-                          </div>
+      <Dialog open={showAssessments} onOpenChange={setShowAssessments}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white">
+          <DialogHeader>
+            <DialogTitle>Assessment History - {selectedPlayer?.name}</DialogTitle>
+            <DialogDescription>
+              View all past assessments and their detailed breakdowns
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            {selectedPlayer?.assessments && selectedPlayer.assessments.length > 0 ? (
+              selectedPlayer.assessments.map((assessment: any, index: number) => (
+                <Card key={assessment._id} className="overflow-hidden">
+                  <CardContent className="p-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge variant={index === 0 ? "default" : "secondary"} className={index === 0 ? "bg-emerald-600" : ""}>
+                            {index === 0 ? "Latest" : `#${index + 1}`}
+                          </Badge>
+                          <span className="text-sm text-slate-500">
+                            {new Date(assessment.date).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-sm">
+                            <span className="text-slate-500">Evaluator:</span>{" "}
+                            <span className="font-medium">{assessment.evaluator}</span>
+                          </p>
+                          <p className="text-sm">
+                            <span className="text-slate-500">Overall Rating:</span>{" "}
+                            <span className="text-xl font-bold text-emerald-600">
+                              {assessment.overallRating.toFixed(1)}
+                            </span>
+                          </p>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-
-                {/* Desktop View - Table */}
-                <div className="hidden lg:block overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Player Name</TableHead>
-                        <TableHead>Jersey #</TableHead>
-                        <TableHead>Position</TableHead>
-                        <TableHead className="text-center">Assessments</TableHead>
-                        <TableHead className="text-center">Latest Rating</TableHead>
-                        <TableHead className="text-center">Progress</TableHead>
-                        <TableHead className="text-center">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {players.map((player) => {
-                        const progress = getPlayerProgress(player);
-                        return (
-                          <TableRow key={player._id} className="hover:bg-muted/50">
-                            <TableCell>
-                              <Input
-                                value={player.name}
-                                onChange={(e) =>
-                                  handleUpdatePlayerInfo(
-                                    player._id,
-                                    "name",
-                                    e.target.value
-                                  )
-                                }
-                                className="max-w-[200px]"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                value={player.jerseyNumber ?? player.age ?? ""}
-                                onChange={(e) =>
-                                  handleUpdatePlayerInfo(
-                                    player._id,
-                                    "jerseyNumber",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Jersey #"
-                                className="w-20"
-                              />
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                value={player.position || ""}
-                                onChange={(e) =>
-                                  handleUpdatePlayerInfo(
-                                    player._id,
-                                    "position",
-                                    e.target.value
-                                  )
-                                }
-                                placeholder="Position"
-                                className="w-28"
-                              />
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <Badge
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-secondary/80"
-                                onClick={() => handleViewAssessments(player)}
-                              >
-                                {player.assessments?.length || 0}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              <span className="text-lg font-bold">
-                                {getPlayerLatestRating(player)}
-                              </span>
-                            </TableCell>
-                            <TableCell className="text-center">
-                              {progress !== null && (
-                                <div className="flex items-center justify-center gap-1">
-                                  {parseFloat(progress) >= 0 ? (
-                                    <TrendingUp className="h-4 w-4 text-green-600" />
-                                  ) : (
-                                    <TrendingDown className="h-4 w-4 text-red-600" />
-                                  )}
-                                  <span
-                                    className={`font-semibold ${
-                                      parseFloat(progress) >= 0
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                    }`}
-                                  >
-                                    {progress > "0" ? "+" : ""}
-                                    {progress}
-                                  </span>
-                                </div>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-2 justify-center">
-                                <Button asChild size="sm">
-                                  <Link href={`/assessment/${player._id}`}>
-                                    Assess
-                                  </Link>
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDeletePlayer(player._id)}
-                                >
-                                  Delete
-                                </Button>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
-              </>
+                      <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                        <Link href={`/assessment-details/${assessment._id}`}>
+                          View Details
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-slate-500">No assessments yet</p>
+              </div>
             )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssessments(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Page Header */}
+      <div className="mb-6">
+        <Button
+          variant="ghost"
+          onClick={() => setSelectedTeamId(null)}
+          className="mb-4 text-slate-600 hover:text-slate-900"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          Back to Dashboard
+        </Button>
+        <h1 className="text-3xl font-bold text-slate-900">{teamName || "Team Details"}</h1>
+        <p className="text-slate-600 mt-1">Manage roster and track player progress</p>
+      </div>
+
+      {/* Team Info */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <Card className="bg-white">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium text-slate-700">Team Name</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Input
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
+              placeholder="Enter team name"
+              className="h-11"
+            />
+          </CardContent>
+        </Card>
+        <Card className="bg-white">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-medium text-slate-700">Coach/Evaluator</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Input
+              value={evaluator}
+              onChange={(e) => setEvaluator(e.target.value)}
+              placeholder="Your name"
+              className="h-11"
+            />
           </CardContent>
         </Card>
       </div>
+
+      {/* Action Buttons */}
+      <div className="flex flex-wrap gap-3 mb-6">
+        <Button onClick={() => setShowAddPlayer(true)} className="bg-emerald-600 hover:bg-emerald-700">
+          <Plus className="h-4 w-4 mr-2" />
+          Add Player
+        </Button>
+        <Button onClick={handleSaveTeamData} variant="secondary">
+          <Save className="h-4 w-4 mr-2" />
+          Save Changes
+        </Button>
+        <Button onClick={exportData} variant="outline">
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+        <Button onClick={handleDeleteTeam} variant="destructive">
+          <Trash2 className="h-4 w-4 mr-2" />
+          Delete Team
+        </Button>
+      </div>
+
+      {/* Team Roster */}
+      <Card className="bg-white">
+        <CardHeader className="bg-slate-900 text-white rounded-t-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5" />
+              <CardTitle className="text-xl">Team Roster</CardTitle>
+            </div>
+            <Badge variant="secondary" className="bg-white text-slate-900">
+              {players?.length || 0} Players
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {!players || players.length === 0 ? (
+            <div className="p-12 text-center">
+              <div className="text-6xl mb-4">⚽</div>
+              <p className="text-xl text-slate-600 mb-2">No players added yet</p>
+              <p className="text-sm text-slate-500 mb-6">
+                Click &quot;Add Player&quot; to get started!
+              </p>
+              <Button onClick={() => setShowAddPlayer(true)} className="bg-emerald-600 hover:bg-emerald-700">
+                <Plus className="h-5 w-5 mr-2" />
+                Add Your First Player
+              </Button>
+            </div>
+          ) : (
+            <>
+              {/* Mobile View - Cards */}
+              <div className="block lg:hidden divide-y">
+                {players.map((player) => {
+                  const progress = getPlayerProgress(player);
+                  const latestRating = getPlayerLatestRating(player);
+
+                  return (
+                    <div key={player._id} className="p-4 space-y-3">
+                      <div>
+                        <Label className="text-xs text-slate-500">Player Name</Label>
+                        <Input
+                          value={player.name}
+                          onChange={(e) => handleUpdatePlayerInfo(player._id, "name", e.target.value)}
+                          className="font-semibold"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-xs text-slate-500">Jersey #</Label>
+                          <Input
+                            value={player.jerseyNumber ?? player.age ?? ""}
+                            onChange={(e) => handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)}
+                            placeholder="#"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-slate-500">Position</Label>
+                          <Input
+                            value={player.position || ""}
+                            onChange={(e) => handleUpdatePlayerInfo(player._id, "position", e.target.value)}
+                            placeholder="Position"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-around py-3 bg-slate-50 rounded-lg">
+                        <div className="text-center">
+                          <p className="text-xs text-slate-500 mb-1">Assessments</p>
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer"
+                            onClick={() => handleViewAssessments(player)}
+                          >
+                            {player.assessments?.length || 0}
+                          </Badge>
+                        </div>
+                        <Separator orientation="vertical" className="h-10" />
+                        <div className="text-center">
+                          <p className="text-xs text-slate-500 mb-1">Rating</p>
+                          <p className="text-xl font-bold text-slate-900">{latestRating}</p>
+                        </div>
+                        {progress !== null && (
+                          <>
+                            <Separator orientation="vertical" className="h-10" />
+                            <div className="text-center">
+                              <p className="text-xs text-slate-500 mb-1">Progress</p>
+                              <div className="flex items-center justify-center gap-1">
+                                {parseFloat(progress) >= 0 ? (
+                                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                                ) : (
+                                  <TrendingDown className="h-4 w-4 text-red-500" />
+                                )}
+                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                  {progress > "0" ? "+" : ""}{progress}
+                                </span>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                          <Link href={`/assessment/${player._id}`}>
+                            <Calendar className="h-4 w-4 mr-2" />
+                            Assess
+                          </Link>
+                        </Button>
+                        <Button variant="destructive" onClick={() => handleDeletePlayer(player._id)}>
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Desktop View - Table */}
+              <div className="hidden lg:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-slate-50">
+                      <TableHead>Player Name</TableHead>
+                      <TableHead>Jersey #</TableHead>
+                      <TableHead>Position</TableHead>
+                      <TableHead className="text-center">Assessments</TableHead>
+                      <TableHead className="text-center">Latest Rating</TableHead>
+                      <TableHead className="text-center">Progress</TableHead>
+                      <TableHead className="text-center">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {players.map((player) => {
+                      const progress = getPlayerProgress(player);
+                      return (
+                        <TableRow key={player._id}>
+                          <TableCell>
+                            <Input
+                              value={player.name}
+                              onChange={(e) => handleUpdatePlayerInfo(player._id, "name", e.target.value)}
+                              className="max-w-[200px]"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={player.jerseyNumber ?? player.age ?? ""}
+                              onChange={(e) => handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)}
+                              placeholder="#"
+                              className="w-20"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={player.position || ""}
+                              onChange={(e) => handleUpdatePlayerInfo(player._id, "position", e.target.value)}
+                              placeholder="Position"
+                              className="w-28"
+                            />
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <Badge
+                              variant="secondary"
+                              className="cursor-pointer hover:bg-slate-200"
+                              onClick={() => handleViewAssessments(player)}
+                            >
+                              <Eye className="h-3 w-3 mr-1" />
+                              {player.assessments?.length || 0}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            <span className="text-lg font-bold text-slate-900">
+                              {getPlayerLatestRating(player)}
+                            </span>
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {progress !== null && (
+                              <div className="flex items-center justify-center gap-1">
+                                {parseFloat(progress) >= 0 ? (
+                                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                                ) : (
+                                  <TrendingDown className="h-4 w-4 text-red-500" />
+                                )}
+                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                  {progress > "0" ? "+" : ""}{progress}
+                                </span>
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-2 justify-center">
+                              <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                                <Link href={`/assessment/${player._id}`}>
+                                  Assess
+                                </Link>
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => handleDeletePlayer(player._id)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
