@@ -384,7 +384,7 @@ export default function TeamManager() {
                   <div className="flex items-center justify-center sm:justify-start gap-2 sm:gap-3 mb-2">
                     <Trophy className="h-8 w-8 sm:h-10 sm:w-10 text-primary flex-shrink-0" />
                     <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                      PlayMaker
+                      FormUp
                     </h1>
                   </div>
                   <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
