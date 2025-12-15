@@ -9,6 +9,8 @@
  */
 
 import type * as assessments from "../assessments.js";
+import type * as auth from "../auth.js";
+import type * as http from "../http.js";
 import type * as players from "../players.js";
 import type * as teams from "../teams.js";
 
@@ -20,6 +22,8 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   assessments: typeof assessments;
+  auth: typeof auth;
+  http: typeof http;
   players: typeof players;
   teams: typeof teams;
 }>;
