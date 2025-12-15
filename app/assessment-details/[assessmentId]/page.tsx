@@ -4,97 +4,19 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Calendar, User, Trophy } from "lucide-react";
-
-const categories = [
-  {
-    name: "Technical Skills",
-    skills: [
-      "Ball Control & First Touch",
-      "Passing (short & long)",
-      "Dribbling",
-      "Shooting",
-      "Heading",
-      "Weak Foot Ability",
-    ],
-  },
-  {
-    name: "Tactical Understanding",
-    skills: [
-      "Positioning & Awareness",
-      "Decision Making",
-      "Off-the-Ball Movement",
-      "Defensive Organization",
-      "Attacking Support",
-      "Game Reading",
-    ],
-  },
-  {
-    name: "Physical Attributes",
-    skills: [
-      "Speed & Acceleration",
-      "Stamina & Endurance",
-      "Strength",
-      "Agility & Balance",
-      "Jumping Ability",
-      "Overall Fitness",
-    ],
-  },
-  {
-    name: "Mental & Psychological",
-    skills: [
-      "Concentration & Focus",
-      "Confidence",
-      "Composure Under Pressure",
-      "Teamwork & Communication",
-      "Coachability",
-      "Leadership",
-    ],
-  },
-];
+import { ASSESSMENT_CATEGORIES, getLegacyRatingKey } from "@/lib/assessmentSchema";
+import { getRatingColor, getRatingLabel, calculateCategoryAverage } from "@/lib/assessmentUtils";
 
 export default function AssessmentDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = params.assessmentId as Id<"assessments">;
 
-  // We need to create a query to get a single assessment by ID
   const assessment = useQuery(api.assessments.getById, { id: assessmentId });
-
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4) return "bg-green-500";
-    if (rating >= 3) return "bg-blue-500";
-    if (rating >= 2) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getRatingLabel = (rating: number) => {
-    const labels: Record<number, string> = {
-      1: "Needs Development",
-      2: "Developing",
-      3: "Competent",
-      4: "Advanced",
-      5: "Elite",
-    };
-    return labels[rating] || "";
-  };
-
-  const calculateCategoryAverage = (category: { name: string; skills: string[] }) => {
-    if (!assessment?.ratings) return "0.0";
-
-    const categoryRatings = category.skills
-      .map((skill) => assessment.ratings[`${category.name}-${skill}`])
-      .filter((r) => r !== undefined);
-
-    if (categoryRatings.length === 0) return "0.0";
-    return (
-      categoryRatings.reduce((a: number, b: number) => a + b, 0) / categoryRatings.length
-    ).toFixed(1);
-  };
 
   if (!assessment) {
     return (
@@ -156,11 +78,11 @@ export default function AssessmentDetailsPage() {
         </div>
 
         {/* Category Breakdown */}
-        {categories.map((category, idx) => {
-          const categoryAvg = calculateCategoryAverage(category);
+        {ASSESSMENT_CATEGORIES.map((category) => {
+          const categoryAvg = calculateCategoryAverage(category, assessment.ratings ?? {});
 
           return (
-            <Card key={idx} className="mb-4 overflow-hidden">
+            <Card key={category.id} className="mb-4 overflow-hidden">
               <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl">{category.name}</CardTitle>
@@ -170,18 +92,18 @@ export default function AssessmentDetailsPage() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                {category.skills.map((skill, skillIdx) => {
-                  const key = `${category.name}-${skill}`;
+                {category.skills.map((skill) => {
+                  const key = getLegacyRatingKey(category.name, skill.name);
                   const rating = assessment.ratings?.[key];
                   const note = assessment.notes?.[key];
 
                   return (
                     <div
-                      key={skillIdx}
+                      key={skill.id}
                       className="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-gray-800">{skill}</span>
+                        <span className="font-medium text-gray-800">{skill.name}</span>
                         {rating && (
                           <Badge
                             variant="outline"

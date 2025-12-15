@@ -7,53 +7,13 @@ import { Id } from "@/convex/_generated/dataModel";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
-
-const categories = [
-  {
-    name: "Technical Skills",
-    skills: [
-      "Ball Control & First Touch",
-      "Passing (short & long)",
-      "Dribbling",
-      "Shooting",
-      "Heading",
-      "Weak Foot Ability",
-    ],
-  },
-  {
-    name: "Tactical Understanding",
-    skills: [
-      "Positioning & Awareness",
-      "Decision Making",
-      "Off-the-Ball Movement",
-      "Defensive Organization",
-      "Attacking Support",
-      "Game Reading",
-    ],
-  },
-  {
-    name: "Physical Attributes",
-    skills: [
-      "Speed & Acceleration",
-      "Stamina & Endurance",
-      "Strength",
-      "Agility & Balance",
-      "Jumping Ability",
-      "Overall Fitness",
-    ],
-  },
-  {
-    name: "Mental & Psychological",
-    skills: [
-      "Concentration & Focus",
-      "Confidence",
-      "Composure Under Pressure",
-      "Teamwork & Communication",
-      "Coachability",
-      "Leadership",
-    ],
-  },
-];
+import { ASSESSMENT_CATEGORIES, getLegacyRatingKey, RATING_LEVELS } from "@/lib/assessmentSchema";
+import {
+  getRatingColor,
+  getRatingLabel,
+  calculateCategoryAverage,
+  calculateOverallAverage,
+} from "@/lib/assessmentUtils";
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -80,59 +40,26 @@ export default function AssessmentPage() {
     }
   }, [player]);
 
-  const handleRating = (category: string, skill: string, rating: number) => {
+  const handleRating = (categoryName: string, skillName: string, rating: number) => {
+    const key = getLegacyRatingKey(categoryName, skillName);
     setRatings((prev) => ({
       ...prev,
-      [`${category}-${skill}`]: rating,
+      [key]: rating,
     }));
   };
 
-  const handleNote = (category: string, skill: string, note: string) => {
+  const handleNote = (categoryName: string, skillName: string, note: string) => {
+    const key = getLegacyRatingKey(categoryName, skillName);
     setNotes((prev) => ({
       ...prev,
-      [`${category}-${skill}`]: note,
+      [key]: note,
     }));
-  };
-
-  const getRatingColor = (rating: number) => {
-    if (rating >= 4) return "bg-green-500";
-    if (rating >= 3) return "bg-blue-500";
-    if (rating >= 2) return "bg-yellow-500";
-    return "bg-red-500";
-  };
-
-  const getRatingLabel = (rating: number) => {
-    const labels: Record<number, string> = {
-      1: "Needs Development",
-      2: "Developing",
-      3: "Competent",
-      4: "Advanced",
-      5: "Elite",
-    };
-    return labels[rating] || "";
-  };
-
-  const calculateCategoryAverage = (category: { name: string; skills: string[] }) => {
-    const categoryRatings = category.skills
-      .map((skill) => ratings[`${category.name}-${skill}`])
-      .filter((r) => r !== undefined);
-
-    if (categoryRatings.length === 0) return "0.0";
-    return (
-      categoryRatings.reduce((a, b) => a + b, 0) / categoryRatings.length
-    ).toFixed(1);
-  };
-
-  const calculateOverallAverage = () => {
-    const allRatings = Object.values(ratings).filter((r) => r !== undefined);
-    if (allRatings.length === 0) return 0;
-    return allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
   };
 
   const handleSaveAssessment = async () => {
     if (!player) return;
 
-    const overallRating = calculateOverallAverage();
+    const overallRating = calculateOverallAverage(ratings);
 
     await createAssessment({
       playerId: player._id,
@@ -225,53 +152,39 @@ export default function AssessmentPage() {
       <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <h3 className="font-semibold text-blue-900 mb-2">Rating Scale Guide</h3>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-2 text-sm">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-red-500 rounded"></div>
-            <span>1 - Needs Development</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-yellow-500 rounded"></div>
-            <span>2 - Developing</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-blue-500 rounded"></div>
-            <span>3 - Competent</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-green-500 rounded"></div>
-            <span>4 - Advanced</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-green-500 rounded"></div>
-            <span>5 - Elite</span>
-          </div>
+          {RATING_LEVELS.map((level) => (
+            <div key={level.value} className="flex items-center gap-2">
+              <div className={`w-6 h-6 ${level.colorClass} rounded`}></div>
+              <span>{level.value} - {level.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {categories.map((category, idx) => (
+      {ASSESSMENT_CATEGORIES.map((category) => (
         <div
-          key={idx}
+          key={category.id}
           className="mb-6 border border-gray-300 rounded-lg overflow-hidden"
         >
           <div className="bg-green-600 text-white px-4 py-3 flex justify-between items-center">
             <h2 className="text-xl font-bold">{category.name}</h2>
             <span className="bg-white text-green-600 px-3 py-1 rounded-full font-semibold">
-              Avg: {calculateCategoryAverage(category)}
+              Avg: {calculateCategoryAverage(category, ratings)}
             </span>
           </div>
 
           <div className="p-4">
-            {category.skills.map((skill, skillIdx) => {
-              const key = `${category.name}-${skill}`;
+            {category.skills.map((skill) => {
+              const key = getLegacyRatingKey(category.name, skill.name);
               const currentRating = ratings[key];
 
               return (
                 <div
-                  key={skillIdx}
+                  key={skill.id}
                   className="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
                 >
                   <div className="flex justify-between items-start mb-2">
-                    <span className="font-medium text-gray-800">{skill}</span>
+                    <span className="font-medium text-gray-800">{skill.name}</span>
                     {currentRating && (
                       <span className="text-sm text-gray-600 italic">
                         {getRatingLabel(currentRating)}
@@ -284,7 +197,7 @@ export default function AssessmentPage() {
                       <button
                         key={rating}
                         onClick={() =>
-                          handleRating(category.name, skill, rating)
+                          handleRating(category.name, skill.name, rating)
                         }
                         className={`flex-1 py-2 px-3 rounded font-semibold transition-all ${
                           currentRating === rating
@@ -300,7 +213,7 @@ export default function AssessmentPage() {
                   <textarea
                     value={notes[key] || ""}
                     onChange={(e) =>
-                      handleNote(category.name, skill, e.target.value)
+                      handleNote(category.name, skill.name, e.target.value)
                     }
                     placeholder="Add notes or observations..."
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
@@ -317,7 +230,7 @@ export default function AssessmentPage() {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Overall Rating</h2>
           <div className="text-4xl font-bold">
-            {calculateOverallAverage().toFixed(1)}
+            {calculateOverallAverage(ratings).toFixed(1)}
           </div>
         </div>
       </div>
