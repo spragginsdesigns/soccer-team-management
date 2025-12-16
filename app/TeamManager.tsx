@@ -14,8 +14,10 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Users, Plus, Save, Download, TrendingUp, TrendingDown, Calendar, ChevronLeft, Trash2, Eye } from "lucide-react";
+import { Users, Plus, Save, Download, TrendingUp, TrendingDown, Calendar, ChevronLeft, Trash2, Eye, UserPlus, Crown } from "lucide-react";
 import { toast } from "sonner";
+import { JoinTeamDialog } from "@/components/team/JoinTeamDialog";
+import { TeamMembersCard } from "@/components/team/TeamMembersCard";
 
 export default function TeamManager() {
   const [selectedTeamId, setSelectedTeamId] = useState<Id<"teams"> | null>(null);
@@ -27,6 +29,7 @@ export default function TeamManager() {
   const [newTeamName, setNewTeamName] = useState("");
   const [showAssessments, setShowAssessments] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [showJoinTeam, setShowJoinTeam] = useState(false);
 
   // Queries
   const currentUser = useQuery(api.users.getCurrentUser);
@@ -242,6 +245,10 @@ export default function TeamManager() {
             <Plus className="h-4 w-4 mr-2" />
             Create Team
           </Button>
+          <Button variant="outline" onClick={() => setShowJoinTeam(true)}>
+            <UserPlus className="h-4 w-4 mr-2" />
+            Join Team
+          </Button>
         </div>
 
         {/* Teams Grid */}
@@ -274,8 +281,18 @@ export default function TeamManager() {
                     </div>
                     <span>{team.name || "Unnamed Team"}</span>
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="flex items-center gap-2">
                     {team.evaluator ? `Coach: ${team.evaluator}` : "No coach assigned"}
+                    {team.memberRole === "owner" ? (
+                      <Badge className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20 text-xs">
+                        <Crown className="h-3 w-3 mr-1" />
+                        Owner
+                      </Badge>
+                    ) : (
+                      <Badge variant="secondary" className="text-xs">
+                        {team.memberRole === "coach" ? "Coach" : "Viewer"}
+                      </Badge>
+                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -326,9 +343,21 @@ export default function TeamManager() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Join Team Modal */}
+        <JoinTeamDialog
+          open={showJoinTeam}
+          onOpenChange={setShowJoinTeam}
+          onSuccess={(teamId) => {
+            // Optionally select the joined team
+          }}
+        />
       </div>
     );
   }
+
+  // Check if user is owner of current team
+  const isTeamOwner = selectedTeam?.memberRole === "owner";
 
   // Team management view
   return (
@@ -484,10 +513,12 @@ export default function TeamManager() {
           <Download className="h-4 w-4 mr-2" />
           Export CSV
         </Button>
-        <Button onClick={handleDeleteTeam} variant="destructive" size="lg">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Delete Team
-        </Button>
+        {isTeamOwner && (
+          <Button onClick={handleDeleteTeam} variant="destructive" size="lg">
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Team
+          </Button>
+        )}
       </div>
 
       {/* Team Roster */}
@@ -705,6 +736,13 @@ export default function TeamManager() {
           )}
         </CardContent>
       </Card>
+
+      {/* Team Members Card */}
+      {selectedTeamId && (
+        <div className="mt-8">
+          <TeamMembersCard teamId={selectedTeamId} isOwner={isTeamOwner} />
+        </div>
+      )}
     </div>
   );
 }
