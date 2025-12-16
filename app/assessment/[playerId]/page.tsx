@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Save, Printer } from "lucide-react";
+import { ArrowLeft, Save, Printer, ShieldAlert } from "lucide-react";
 
 export default function AssessmentPage() {
   const router = useRouter();
@@ -37,6 +37,12 @@ export default function AssessmentPage() {
 
   // Queries
   const player = useQuery(api.players.getById, { playerId });
+  // Check team access - need to verify coach role
+  const team = useQuery(
+    api.teams.getById,
+    player?.teamId ? { teamId: player.teamId } : "skip"
+  );
+  const canManageAssessments = team?.memberRole === "owner" || team?.memberRole === "coach";
 
   // Mutations
   const createAssessment = useMutation(api.assessments.create);
@@ -83,11 +89,41 @@ export default function AssessmentPage() {
     router.push("/");
   };
 
-  if (!player) {
+  // Loading state
+  if (player === undefined || (player && team === undefined)) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-xl text-muted-foreground">Loading...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Player not found or no team access
+  if (!player || !team) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-96 gap-4">
+          <ShieldAlert className="h-16 w-16 text-muted-foreground" />
+          <div className="text-xl text-muted-foreground">Player not found</div>
+          <Button onClick={() => router.push("/")}>Back to Dashboard</Button>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Access denied - not a coach
+  if (!canManageAssessments) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-96 gap-4">
+          <ShieldAlert className="h-16 w-16 text-destructive" />
+          <div className="text-xl font-semibold text-foreground">Access Denied</div>
+          <p className="text-muted-foreground text-center max-w-md">
+            Only coaches can create and manage player assessments.
+          </p>
+          <Button onClick={() => router.push("/")}>Back to Dashboard</Button>
         </div>
       </DashboardLayout>
     );

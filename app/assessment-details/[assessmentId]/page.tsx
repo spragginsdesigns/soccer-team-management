@@ -19,7 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Calendar, User, Trophy, Printer, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, User, Trophy, Printer, Trash2, ShieldAlert } from "lucide-react";
 import { ASSESSMENT_CATEGORIES, getLegacyRatingKey } from "@/lib/assessmentSchema";
 import { getRatingColor, getRatingLabel, calculateCategoryAverage } from "@/lib/assessmentUtils";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -31,6 +31,7 @@ export default function AssessmentDetailsPage() {
   const assessmentId = params.assessmentId as Id<"assessments">;
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Assessment query - will return null for non-coaches due to verifyTeamModifyAccess
   const assessment = useQuery(api.assessments.getById, { id: assessmentId });
   const deleteAssessment = useMutation(api.assessments.remove);
 
@@ -46,11 +47,28 @@ export default function AssessmentDetailsPage() {
     }
   };
 
-  if (!assessment) {
+  // Loading state
+  if (assessment === undefined) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-xl text-muted-foreground">Loading...</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // Assessment not found or access denied (viewers get null from the query)
+  if (!assessment) {
+    return (
+      <DashboardLayout>
+        <div className="flex flex-col items-center justify-center h-96 gap-4">
+          <ShieldAlert className="h-16 w-16 text-destructive" />
+          <div className="text-xl font-semibold text-foreground">Access Denied</div>
+          <p className="text-muted-foreground text-center max-w-md">
+            Only coaches can view assessment details. This assessment may not exist or you don&apos;t have permission to view it.
+          </p>
+          <Button onClick={() => router.push("/")}>Back to Dashboard</Button>
         </div>
       </DashboardLayout>
     );

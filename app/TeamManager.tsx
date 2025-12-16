@@ -352,6 +352,8 @@ export default function TeamManager() {
 
   // Check if user is owner of current team
   const isTeamOwner = selectedTeam?.memberRole === "owner";
+  // Check if user can manage assessments (owner or coach)
+  const canManageAssessments = selectedTeam?.memberRole === "owner" || selectedTeam?.memberRole === "coach";
 
   // Team management view
   return (
@@ -581,54 +583,58 @@ export default function TeamManager() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-around py-4 bg-muted rounded-lg">
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1">Assessments</p>
-                          <Badge
-                            variant="secondary"
-                            className="cursor-pointer"
-                            onClick={() => handleViewAssessments(player)}
-                          >
-                            {player.assessments?.length || 0}
-                          </Badge>
-                        </div>
-                        <Separator orientation="vertical" className="h-12" />
-                        <div className="text-center">
-                          <p className="text-xs text-muted-foreground mb-1">Rating</p>
-                          <p className="text-xl font-bold text-foreground">{latestRating}</p>
-                        </div>
-                        {progress !== null && (
-                          <>
-                            <Separator orientation="vertical" className="h-12" />
-                            <div className="text-center">
-                              <p className="text-xs text-muted-foreground mb-1">Progress</p>
-                              <div className="flex items-center justify-center gap-1">
-                                {parseFloat(progress) >= 0 ? (
-                                  <TrendingUp className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <TrendingDown className="h-4 w-4 text-destructive" />
-                                )}
-                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
-                                  {progress > "0" ? "+" : ""}{progress}
-                                </span>
+                      {canManageAssessments && (
+                        <div className="flex items-center justify-around py-4 bg-muted rounded-lg">
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1">Assessments</p>
+                            <Badge
+                              variant="secondary"
+                              className="cursor-pointer"
+                              onClick={() => handleViewAssessments(player)}
+                            >
+                              {player.assessments?.length || 0}
+                            </Badge>
+                          </div>
+                          <Separator orientation="vertical" className="h-12" />
+                          <div className="text-center">
+                            <p className="text-xs text-muted-foreground mb-1">Rating</p>
+                            <p className="text-xl font-bold text-foreground">{latestRating}</p>
+                          </div>
+                          {progress !== null && (
+                            <>
+                              <Separator orientation="vertical" className="h-12" />
+                              <div className="text-center">
+                                <p className="text-xs text-muted-foreground mb-1">Progress</p>
+                                <div className="flex items-center justify-center gap-1">
+                                  {parseFloat(progress) >= 0 ? (
+                                    <TrendingUp className="h-4 w-4 text-primary" />
+                                  ) : (
+                                    <TrendingDown className="h-4 w-4 text-destructive" />
+                                  )}
+                                  <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
+                                    {progress > "0" ? "+" : ""}{progress}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                            </>
+                          )}
+                        </div>
+                      )}
 
-                      <div className="grid grid-cols-2 gap-4 pt-2">
-                        <Button asChild size="lg">
-                          <Link href={`/assessment/${player._id}`}>
-                            <Calendar className="h-4 w-4 mr-2" />
-                            Assess
-                          </Link>
-                        </Button>
-                        <Button variant="destructive" size="lg" onClick={() => handleDeletePlayer(player._id)}>
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          Delete
-                        </Button>
-                      </div>
+                      {canManageAssessments && (
+                        <div className="grid grid-cols-2 gap-4 pt-2">
+                          <Button asChild size="lg">
+                            <Link href={`/assessment/${player._id}`}>
+                              <Calendar className="h-4 w-4 mr-2" />
+                              Assess
+                            </Link>
+                          </Button>
+                          <Button variant="destructive" size="lg" onClick={() => handleDeletePlayer(player._id)}>
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -642,10 +648,14 @@ export default function TeamManager() {
                       <TableHead className="py-4">Player Name</TableHead>
                       <TableHead className="py-4">Jersey #</TableHead>
                       <TableHead className="py-4">Position</TableHead>
-                      <TableHead className="py-4 text-center">Assessments</TableHead>
-                      <TableHead className="py-4 text-center">Latest Rating</TableHead>
-                      <TableHead className="py-4 text-center">Progress</TableHead>
-                      <TableHead className="py-4 text-center">Actions</TableHead>
+                      {canManageAssessments && (
+                        <>
+                          <TableHead className="py-4 text-center">Assessments</TableHead>
+                          <TableHead className="py-4 text-center">Latest Rating</TableHead>
+                          <TableHead className="py-4 text-center">Progress</TableHead>
+                          <TableHead className="py-4 text-center">Actions</TableHead>
+                        </>
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -676,50 +686,54 @@ export default function TeamManager() {
                               className="w-32 h-10"
                             />
                           </TableCell>
-                          <TableCell className="py-4 text-center">
-                            <Badge
-                              variant="secondary"
-                              className="cursor-pointer hover:bg-accent"
-                              onClick={() => handleViewAssessments(player)}
-                            >
-                              <Eye className="h-3 w-3 mr-1" />
-                              {player.assessments?.length || 0}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="py-4 text-center">
-                            <span className="text-lg font-bold text-foreground">
-                              {getPlayerLatestRating(player)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-4 text-center">
-                            {progress !== null && (
-                              <div className="flex items-center justify-center gap-1">
-                                {parseFloat(progress) >= 0 ? (
-                                  <TrendingUp className="h-4 w-4 text-primary" />
-                                ) : (
-                                  <TrendingDown className="h-4 w-4 text-destructive" />
-                                )}
-                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
-                                  {progress > "0" ? "+" : ""}{progress}
+                          {canManageAssessments && (
+                            <>
+                              <TableCell className="py-4 text-center">
+                                <Badge
+                                  variant="secondary"
+                                  className="cursor-pointer hover:bg-accent"
+                                  onClick={() => handleViewAssessments(player)}
+                                >
+                                  <Eye className="h-3 w-3 mr-1" />
+                                  {player.assessments?.length || 0}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="py-4 text-center">
+                                <span className="text-lg font-bold text-foreground">
+                                  {getPlayerLatestRating(player)}
                                 </span>
-                              </div>
-                            )}
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="flex gap-3 justify-center">
-                              <Button asChild>
-                                <Link href={`/assessment/${player._id}`}>
-                                  Assess
-                                </Link>
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                onClick={() => handleDeletePlayer(player._id)}
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </TableCell>
+                              </TableCell>
+                              <TableCell className="py-4 text-center">
+                                {progress !== null && (
+                                  <div className="flex items-center justify-center gap-1">
+                                    {parseFloat(progress) >= 0 ? (
+                                      <TrendingUp className="h-4 w-4 text-primary" />
+                                    ) : (
+                                      <TrendingDown className="h-4 w-4 text-destructive" />
+                                    )}
+                                    <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
+                                      {progress > "0" ? "+" : ""}{progress}
+                                    </span>
+                                  </div>
+                                )}
+                              </TableCell>
+                              <TableCell className="py-4">
+                                <div className="flex gap-3 justify-center">
+                                  <Button asChild>
+                                    <Link href={`/assessment/${player._id}`}>
+                                      Assess
+                                    </Link>
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    onClick={() => handleDeletePlayer(player._id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </TableCell>
+                            </>
+                          )}
                         </TableRow>
                       );
                     })}
