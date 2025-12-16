@@ -54,21 +54,21 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 h-screen bg-slate-900 text-white transition-all duration-300",
+        "fixed left-0 top-0 z-40 h-screen bg-sidebar text-sidebar-foreground transition-all duration-300",
         collapsed ? "w-16" : "w-64"
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-slate-700 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
-            <Trophy className="h-8 w-8 text-emerald-500" />
-            <span className="text-xl font-bold">FormUp</span>
+            <Trophy className="h-8 w-8 text-primary" />
+            <span className="text-xl font-bold text-foreground">FormUp</span>
           </Link>
         )}
         {collapsed && (
           <Link href="/" className="mx-auto">
-            <Trophy className="h-8 w-8 text-emerald-500" />
+            <Trophy className="h-8 w-8 text-primary" />
           </Link>
         )}
         <Button
@@ -76,7 +76,7 @@ export function Sidebar() {
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
-            "text-slate-400 hover:text-white hover:bg-slate-800",
+            "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent/20",
             collapsed && "mx-auto"
           )}
         >
@@ -99,8 +99,8 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-emerald-600 text-white"
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-sidebar-foreground/70 hover:bg-sidebar-accent/20 hover:text-sidebar-foreground",
                 collapsed && "justify-center px-2"
               )}
               title={collapsed ? item.label : undefined}
@@ -113,11 +113,11 @@ export function Sidebar() {
       </nav>
 
       {/* Logout */}
-      <div className="border-t border-slate-700 p-2">
+      <div className="border-t border-sidebar-border p-2">
         <button
           onClick={() => void signOut()}
           className={cn(
-            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-300 transition-colors hover:bg-slate-800 hover:text-white",
+            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent/20 hover:text-sidebar-foreground",
             collapsed && "justify-center px-2"
           )}
           title={collapsed ? "Logout" : undefined}

@@ -1,9 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Toaster } from "@/components/ui/sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/components/theme-provider";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "FormUp",
@@ -17,7 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      <html lang="en">
+      <html lang="en" className="dark" suppressHydrationWarning>
         <head>
           <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
           <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -26,10 +30,17 @@ export default function RootLayout({
           <meta name="apple-mobile-web-app-title" content="FormUp" />
           <link rel="manifest" href="/site.webmanifest" />
         </head>
-        <body className="bg-gray-100">
-          <ConvexClientProvider>{children}</ConvexClientProvider>
-          <Toaster />
-          <Analytics />
+        <body className={`${inter.className} bg-background text-foreground`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            forcedTheme="dark"
+            disableTransitionOnChange
+          >
+            <ConvexClientProvider>{children}</ConvexClientProvider>
+            <Toaster />
+            <Analytics />
+          </ThemeProvider>
         </body>
       </html>
     </ConvexAuthNextjsServerProvider>

@@ -12,7 +12,9 @@ const config: Config = {
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
-  			sm: 'calc(var(--radius) - 4px)'
+  			sm: 'calc(var(--radius) - 4px)',
+  			xl: 'calc(var(--radius) + 4px)',
+  			'2xl': 'calc(var(--radius) + 8px)',
   		},
   		colors: {
   			background: 'hsl(var(--background))',
@@ -54,6 +56,13 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))'
   			}
   		}
   	}

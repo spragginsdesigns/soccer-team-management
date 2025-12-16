@@ -78,13 +78,14 @@ export const ASSESSMENT_CATEGORIES: Category[] = [
 /**
  * Rating levels with labels and colors.
  * Scale: 1-5
+ * Using chart colors from CSS variables for theming support
  */
 export const RATING_LEVELS: RatingLevel[] = [
-  { value: 1, label: "Needs Development", colorClass: "bg-red-500" },
-  { value: 2, label: "Developing", colorClass: "bg-yellow-500" },
-  { value: 3, label: "Competent", colorClass: "bg-blue-500" },
-  { value: 4, label: "Advanced", colorClass: "bg-green-500" },
-  { value: 5, label: "Elite", colorClass: "bg-green-500" },
+  { value: 1, label: "Needs Development", colorClass: "bg-destructive" },
+  { value: 2, label: "Developing", colorClass: "bg-chart-4" },
+  { value: 3, label: "Competent", colorClass: "bg-chart-3" },
+  { value: 4, label: "Advanced", colorClass: "bg-chart-2" },
+  { value: 5, label: "Elite", colorClass: "bg-primary" },
 ];
 
 /**

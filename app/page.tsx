@@ -8,8 +8,8 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-100">
-      <div className="text-xl text-slate-600">Loading...</div>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <div className="text-xl text-muted-foreground">Loading...</div>
     </div>
   );
 }

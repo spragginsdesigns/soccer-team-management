@@ -7,9 +7,10 @@ import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, User, Trophy } from "lucide-react";
+import { ArrowLeft, Calendar, User, Trophy, Printer } from "lucide-react";
 import { ASSESSMENT_CATEGORIES, getLegacyRatingKey } from "@/lib/assessmentSchema";
 import { getRatingColor, getRatingLabel, calculateCategoryAverage } from "@/lib/assessmentUtils";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
 
 export default function AssessmentDetailsPage() {
   const router = useRouter();
@@ -20,28 +21,30 @@ export default function AssessmentDetailsPage() {
 
   if (!assessment) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl">Loading...</div>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-xl text-muted-foreground">Loading...</div>
+        </div>
+      </DashboardLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
-      <div className="max-w-5xl mx-auto p-3 sm:p-4 md:p-6">
+    <DashboardLayout>
+      <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="mb-4"
+            className="mb-4 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
 
-          <Card className="bg-white shadow-lg">
-            <CardHeader className="bg-gradient-to-r from-primary to-emerald-600 text-primary-foreground">
+          <Card>
+            <CardHeader className="bg-primary text-primary-foreground rounded-t-xl">
               <CardTitle className="text-2xl flex items-center gap-2">
                 <Trophy className="h-6 w-6" />
                 Assessment Details
@@ -83,10 +86,10 @@ export default function AssessmentDetailsPage() {
 
           return (
             <Card key={category.id} className="mb-4 overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white">
+              <CardHeader className="bg-primary text-primary-foreground">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl">{category.name}</CardTitle>
-                  <Badge variant="secondary" className="text-base px-3 py-1">
+                  <Badge variant="secondary" className="text-base px-3 py-1 bg-background text-foreground">
                     Avg: {categoryAvg}
                   </Badge>
                 </div>
@@ -100,10 +103,10 @@ export default function AssessmentDetailsPage() {
                   return (
                     <div
                       key={skill.id}
-                      className="mb-4 pb-4 border-b border-gray-200 last:border-b-0"
+                      className="mb-4 pb-4 border-b border-border last:border-b-0 last:mb-0 last:pb-0"
                     >
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-medium text-gray-800">{skill.name}</span>
+                        <span className="font-medium text-foreground">{skill.name}</span>
                         {rating && (
                           <Badge
                             variant="outline"
@@ -123,7 +126,7 @@ export default function AssessmentDetailsPage() {
                               className={`flex-1 h-2 rounded ${
                                 r <= rating
                                   ? getRatingColor(rating)
-                                  : "bg-gray-200"
+                                  : "bg-muted"
                               }`}
                             />
                           ))}
@@ -132,13 +135,13 @@ export default function AssessmentDetailsPage() {
 
                       {/* Notes */}
                       {note && (
-                        <div className="bg-gray-50 p-3 rounded-md mt-2">
-                          <p className="text-sm text-gray-700">{note}</p>
+                        <div className="bg-muted p-3 rounded-md mt-2">
+                          <p className="text-sm text-muted-foreground">{note}</p>
                         </div>
                       )}
 
                       {!rating && !note && (
-                        <p className="text-sm text-gray-400 italic">Not assessed</p>
+                        <p className="text-sm text-muted-foreground italic">Not assessed</p>
                       )}
                     </div>
                   );
@@ -155,10 +158,11 @@ export default function AssessmentDetailsPage() {
             className="flex-1"
             size="lg"
           >
+            <Printer className="h-4 w-4 mr-2" />
             Print Assessment
           </Button>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 }

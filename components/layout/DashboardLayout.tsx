@@ -2,9 +2,8 @@
 
 import { ReactNode, useState } from "react";
 import { Sidebar } from "./Sidebar";
+import { MobileHeader } from "./MobileHeader";
 import { cn } from "@/lib/utils";
-import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -14,7 +13,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-background">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
@@ -41,20 +40,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <div className="lg:pl-64 transition-all duration-300">
         {/* Mobile Header */}
-        <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b bg-slate-900 px-4 lg:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setSidebarOpen(true)}
-            className="text-white hover:bg-slate-800"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-          <span className="text-xl font-bold text-white">FormUp</span>
-        </header>
+        <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Page Content */}
-        <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen">
+        <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen p-4 md:p-6">
           {children}
         </main>
       </div>

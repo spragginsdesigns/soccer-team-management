@@ -6,12 +6,14 @@ import { Category, RATING_LEVELS, getLegacyRatingKey } from "./assessmentSchema"
 
 /**
  * Get the Tailwind color class for a rating value.
+ * Uses chart colors from CSS variables for theming support.
  */
 export function getRatingColor(rating: number): string {
-  if (rating >= 4) return "bg-green-500";
-  if (rating >= 3) return "bg-blue-500";
-  if (rating >= 2) return "bg-yellow-500";
-  return "bg-red-500";
+  if (rating >= 5) return "bg-primary";
+  if (rating >= 4) return "bg-chart-2";
+  if (rating >= 3) return "bg-chart-3";
+  if (rating >= 2) return "bg-chart-4";
+  return "bg-destructive";
 }
 
 /**

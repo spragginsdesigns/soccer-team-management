@@ -205,7 +205,7 @@ export default function TeamManager() {
   if (teams === undefined) {
     return (
       <div className="flex items-center justify-center h-96">
-        <div className="text-xl text-slate-600">Loading...</div>
+        <div className="text-xl text-muted-foreground">Loading...</div>
       </div>
     );
   }
@@ -213,16 +213,16 @@ export default function TeamManager() {
   // Team selection view (Dashboard)
   if (!selectedTeamId) {
     return (
-      <div className="p-6">
+      <div>
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
-          <p className="text-slate-600 mt-1">Manage your teams and track player development</p>
+          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">Manage your teams and track player development</p>
         </div>
 
         {/* Quick Actions */}
         <div className="flex gap-3 mb-8">
-          <Button onClick={() => setShowCreateTeam(true)} className="bg-emerald-600 hover:bg-emerald-700">
+          <Button onClick={() => setShowCreateTeam(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Team
           </Button>
@@ -230,14 +230,14 @@ export default function TeamManager() {
 
         {/* Teams Grid */}
         {teams.length === 0 ? (
-          <Card className="text-center py-16 bg-white">
+          <Card className="text-center py-16">
             <CardContent>
               <div className="text-6xl mb-4">⚽</div>
-              <h2 className="text-2xl font-semibold text-slate-900 mb-2">No teams yet</h2>
-              <p className="text-slate-600 mb-6">
+              <h2 className="text-2xl font-semibold text-foreground mb-2">No teams yet</h2>
+              <p className="text-muted-foreground mb-6">
                 Create your first team to start tracking player development
               </p>
-              <Button size="lg" onClick={() => setShowCreateTeam(true)} className="bg-emerald-600 hover:bg-emerald-700">
+              <Button size="lg" onClick={() => setShowCreateTeam(true)}>
                 <Plus className="h-5 w-5 mr-2" />
                 Create Your First Team
               </Button>
@@ -248,13 +248,13 @@ export default function TeamManager() {
             {teams.map((team) => (
               <Card
                 key={team._id}
-                className="cursor-pointer hover:shadow-lg transition-all hover:border-emerald-300 bg-white"
+                className="cursor-pointer hover:shadow-lg transition-all hover:border-primary/50"
                 onClick={() => setSelectedTeamId(team._id)}
               >
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-slate-900">
-                    <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-emerald-600" />
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Users className="h-5 w-5 text-primary" />
                     </div>
                     <span>{team.name || "Unnamed Team"}</span>
                   </CardTitle>
@@ -264,10 +264,10 @@ export default function TeamManager() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-500">
+                    <span className="text-muted-foreground">
                       Created {new Date(team.createdAt).toLocaleDateString()}
                     </span>
-                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                    <Badge variant="secondary" className="bg-primary/10 text-primary">
                       View Team
                     </Badge>
                   </div>
@@ -279,7 +279,7 @@ export default function TeamManager() {
 
         {/* Create Team Modal */}
         <Dialog open={showCreateTeam} onOpenChange={setShowCreateTeam}>
-          <DialogContent className="bg-white">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>Create New Team</DialogTitle>
               <DialogDescription>
@@ -304,7 +304,7 @@ export default function TeamManager() {
               <Button variant="outline" onClick={() => setShowCreateTeam(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateTeam} className="bg-emerald-600 hover:bg-emerald-700">
+              <Button onClick={handleCreateTeam}>
                 Create Team
               </Button>
             </DialogFooter>
@@ -316,10 +316,10 @@ export default function TeamManager() {
 
   // Team management view
   return (
-    <div className="p-6">
+    <div>
       {/* Modals */}
       <Dialog open={showAddPlayer} onOpenChange={setShowAddPlayer}>
-        <DialogContent className="bg-white">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add New Player</DialogTitle>
             <DialogDescription>
@@ -344,7 +344,7 @@ export default function TeamManager() {
             <Button variant="outline" onClick={() => setShowAddPlayer(false)}>
               Cancel
             </Button>
-            <Button onClick={confirmAddPlayer} className="bg-emerald-600 hover:bg-emerald-700">
+            <Button onClick={confirmAddPlayer}>
               Add Player
             </Button>
           </DialogFooter>
@@ -352,7 +352,7 @@ export default function TeamManager() {
       </Dialog>
 
       <Dialog open={showAssessments} onOpenChange={setShowAssessments}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto bg-white">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Assessment History - {selectedPlayer?.name}</DialogTitle>
             <DialogDescription>
@@ -367,27 +367,27 @@ export default function TeamManager() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={index === 0 ? "default" : "secondary"} className={index === 0 ? "bg-emerald-600" : ""}>
+                          <Badge variant={index === 0 ? "default" : "secondary"}>
                             {index === 0 ? "Latest" : `#${index + 1}`}
                           </Badge>
-                          <span className="text-sm text-slate-500">
+                          <span className="text-sm text-muted-foreground">
                             {new Date(assessment.date).toLocaleDateString()}
                           </span>
                         </div>
                         <div className="space-y-1">
                           <p className="text-sm">
-                            <span className="text-slate-500">Evaluator:</span>{" "}
+                            <span className="text-muted-foreground">Evaluator:</span>{" "}
                             <span className="font-medium">{assessment.evaluator}</span>
                           </p>
                           <p className="text-sm">
-                            <span className="text-slate-500">Overall Rating:</span>{" "}
-                            <span className="text-xl font-bold text-emerald-600">
+                            <span className="text-muted-foreground">Overall Rating:</span>{" "}
+                            <span className="text-xl font-bold text-primary">
                               {assessment.overallRating.toFixed(1)}
                             </span>
                           </p>
                         </div>
                       </div>
-                      <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                      <Button asChild>
                         <Link href={`/assessment-details/${assessment._id}`}>
                           View Details
                         </Link>
@@ -398,7 +398,7 @@ export default function TeamManager() {
               ))
             ) : (
               <div className="text-center py-8">
-                <p className="text-slate-500">No assessments yet</p>
+                <p className="text-muted-foreground">No assessments yet</p>
               </div>
             )}
           </div>
@@ -415,20 +415,20 @@ export default function TeamManager() {
         <Button
           variant="ghost"
           onClick={() => setSelectedTeamId(null)}
-          className="mb-4 text-slate-600 hover:text-slate-900"
+          className="mb-4 text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Button>
-        <h1 className="text-3xl font-bold text-slate-900">{teamName || "Team Details"}</h1>
-        <p className="text-slate-600 mt-1">Manage roster and track player progress</p>
+        <h1 className="text-3xl font-bold text-foreground">{teamName || "Team Details"}</h1>
+        <p className="text-muted-foreground mt-1">Manage roster and track player progress</p>
       </div>
 
       {/* Team Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        <Card className="bg-white">
+        <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium text-slate-700">Team Name</CardTitle>
+            <CardTitle className="text-base font-medium">Team Name</CardTitle>
           </CardHeader>
           <CardContent>
             <Input
@@ -439,9 +439,9 @@ export default function TeamManager() {
             />
           </CardContent>
         </Card>
-        <Card className="bg-white">
+        <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium text-slate-700">Coach/Evaluator</CardTitle>
+            <CardTitle className="text-base font-medium">Coach/Evaluator</CardTitle>
           </CardHeader>
           <CardContent>
             <Input
@@ -456,7 +456,7 @@ export default function TeamManager() {
 
       {/* Action Buttons */}
       <div className="flex flex-wrap gap-3 mb-6">
-        <Button onClick={() => setShowAddPlayer(true)} className="bg-emerald-600 hover:bg-emerald-700">
+        <Button onClick={() => setShowAddPlayer(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Player
         </Button>
@@ -475,14 +475,14 @@ export default function TeamManager() {
       </div>
 
       {/* Team Roster */}
-      <Card className="bg-white">
-        <CardHeader className="bg-slate-900 text-white rounded-t-lg">
+      <Card>
+        <CardHeader className="bg-primary text-primary-foreground rounded-t-xl">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Users className="h-5 w-5" />
               <CardTitle className="text-xl">Team Roster</CardTitle>
             </div>
-            <Badge variant="secondary" className="bg-white text-slate-900">
+            <Badge variant="secondary" className="bg-background text-foreground">
               {players?.length || 0} Players
             </Badge>
           </div>
@@ -491,11 +491,11 @@ export default function TeamManager() {
           {!players || players.length === 0 ? (
             <div className="p-12 text-center">
               <div className="text-6xl mb-4">⚽</div>
-              <p className="text-xl text-slate-600 mb-2">No players added yet</p>
-              <p className="text-sm text-slate-500 mb-6">
+              <p className="text-xl text-muted-foreground mb-2">No players added yet</p>
+              <p className="text-sm text-muted-foreground mb-6">
                 Click &quot;Add Player&quot; to get started!
               </p>
-              <Button onClick={() => setShowAddPlayer(true)} className="bg-emerald-600 hover:bg-emerald-700">
+              <Button onClick={() => setShowAddPlayer(true)}>
                 <Plus className="h-5 w-5 mr-2" />
                 Add Your First Player
               </Button>
@@ -503,7 +503,7 @@ export default function TeamManager() {
           ) : (
             <>
               {/* Mobile View - Cards */}
-              <div className="block lg:hidden divide-y">
+              <div className="block lg:hidden divide-y divide-border">
                 {players.map((player) => {
                   const progress = getPlayerProgress(player);
                   const latestRating = getPlayerLatestRating(player);
@@ -511,7 +511,7 @@ export default function TeamManager() {
                   return (
                     <div key={player._id} className="p-4 space-y-3">
                       <div>
-                        <Label className="text-xs text-slate-500">Player Name</Label>
+                        <Label className="text-xs text-muted-foreground">Player Name</Label>
                         <Input
                           value={player.name}
                           onChange={(e) => handleUpdatePlayerInfo(player._id, "name", e.target.value)}
@@ -521,7 +521,7 @@ export default function TeamManager() {
 
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-xs text-slate-500">Jersey #</Label>
+                          <Label className="text-xs text-muted-foreground">Jersey #</Label>
                           <Input
                             value={player.jerseyNumber ?? player.age ?? ""}
                             onChange={(e) => handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)}
@@ -529,7 +529,7 @@ export default function TeamManager() {
                           />
                         </div>
                         <div>
-                          <Label className="text-xs text-slate-500">Position</Label>
+                          <Label className="text-xs text-muted-foreground">Position</Label>
                           <Input
                             value={player.position || ""}
                             onChange={(e) => handleUpdatePlayerInfo(player._id, "position", e.target.value)}
@@ -538,9 +538,9 @@ export default function TeamManager() {
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-around py-3 bg-slate-50 rounded-lg">
+                      <div className="flex items-center justify-around py-3 bg-muted rounded-lg">
                         <div className="text-center">
-                          <p className="text-xs text-slate-500 mb-1">Assessments</p>
+                          <p className="text-xs text-muted-foreground mb-1">Assessments</p>
                           <Badge
                             variant="secondary"
                             className="cursor-pointer"
@@ -551,21 +551,21 @@ export default function TeamManager() {
                         </div>
                         <Separator orientation="vertical" className="h-10" />
                         <div className="text-center">
-                          <p className="text-xs text-slate-500 mb-1">Rating</p>
-                          <p className="text-xl font-bold text-slate-900">{latestRating}</p>
+                          <p className="text-xs text-muted-foreground mb-1">Rating</p>
+                          <p className="text-xl font-bold text-foreground">{latestRating}</p>
                         </div>
                         {progress !== null && (
                           <>
                             <Separator orientation="vertical" className="h-10" />
                             <div className="text-center">
-                              <p className="text-xs text-slate-500 mb-1">Progress</p>
+                              <p className="text-xs text-muted-foreground mb-1">Progress</p>
                               <div className="flex items-center justify-center gap-1">
                                 {parseFloat(progress) >= 0 ? (
-                                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                                  <TrendingUp className="h-4 w-4 text-primary" />
                                 ) : (
-                                  <TrendingDown className="h-4 w-4 text-red-500" />
+                                  <TrendingDown className="h-4 w-4 text-destructive" />
                                 )}
-                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
                                   {progress > "0" ? "+" : ""}{progress}
                                 </span>
                               </div>
@@ -575,7 +575,7 @@ export default function TeamManager() {
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <Button asChild className="bg-emerald-600 hover:bg-emerald-700">
+                        <Button asChild>
                           <Link href={`/assessment/${player._id}`}>
                             <Calendar className="h-4 w-4 mr-2" />
                             Assess
@@ -595,7 +595,7 @@ export default function TeamManager() {
               <div className="hidden lg:block overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-slate-50">
+                    <TableRow className="bg-muted/50">
                       <TableHead>Player Name</TableHead>
                       <TableHead>Jersey #</TableHead>
                       <TableHead>Position</TableHead>
@@ -636,7 +636,7 @@ export default function TeamManager() {
                           <TableCell className="text-center">
                             <Badge
                               variant="secondary"
-                              className="cursor-pointer hover:bg-slate-200"
+                              className="cursor-pointer hover:bg-accent"
                               onClick={() => handleViewAssessments(player)}
                             >
                               <Eye className="h-3 w-3 mr-1" />
@@ -644,7 +644,7 @@ export default function TeamManager() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-center">
-                            <span className="text-lg font-bold text-slate-900">
+                            <span className="text-lg font-bold text-foreground">
                               {getPlayerLatestRating(player)}
                             </span>
                           </TableCell>
@@ -652,11 +652,11 @@ export default function TeamManager() {
                             {progress !== null && (
                               <div className="flex items-center justify-center gap-1">
                                 {parseFloat(progress) >= 0 ? (
-                                  <TrendingUp className="h-4 w-4 text-emerald-600" />
+                                  <TrendingUp className="h-4 w-4 text-primary" />
                                 ) : (
-                                  <TrendingDown className="h-4 w-4 text-red-500" />
+                                  <TrendingDown className="h-4 w-4 text-destructive" />
                                 )}
-                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                                <span className={`font-semibold ${parseFloat(progress) >= 0 ? "text-primary" : "text-destructive"}`}>
                                   {progress > "0" ? "+" : ""}{progress}
                                 </span>
                               </div>
@@ -664,7 +664,7 @@ export default function TeamManager() {
                           </TableCell>
                           <TableCell>
                             <div className="flex gap-2 justify-center">
-                              <Button asChild size="sm" className="bg-emerald-600 hover:bg-emerald-700">
+                              <Button asChild size="sm">
                                 <Link href={`/assessment/${player._id}`}>
                                   Assess
                                 </Link>
