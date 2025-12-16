@@ -298,7 +298,7 @@ export default function TeamManager() {
                 <CardContent>
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">
-                      Created {new Date(team.createdAt).toLocaleDateString()}
+                      {team.createdAt ? `Created ${new Date(team.createdAt).toLocaleDateString()}` : ""}
                     </span>
                     <Badge variant="secondary" className="bg-primary/10 text-primary">
                       View Team
