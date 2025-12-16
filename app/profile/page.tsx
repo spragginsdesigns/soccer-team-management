@@ -1,22 +1,78 @@
 "use client";
 
-import { useConvexAuth } from "convex/react";
+import { useState, useEffect } from "react";
+import { useConvexAuth, useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { User, Mail, Shield, Calendar } from "lucide-react";
+import { User, Mail, Shield, Calendar, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ProfilePage() {
   const { isAuthenticated } = useConvexAuth();
+  const currentUser = useQuery(api.users.getCurrentUser);
+  const updateProfile = useMutation(api.users.updateProfile);
+
+  const [name, setName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false);
+
+  // Populate form when user data loads
+  useEffect(() => {
+    if (currentUser?.name) {
+      setName(currentUser.name);
+    }
+  }, [currentUser]);
+
+  // Track changes
+  useEffect(() => {
+    if (currentUser) {
+      setHasChanges(name !== (currentUser.name ?? ""));
+    }
+  }, [name, currentUser]);
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error("Please enter a display name");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await updateProfile({ name: name.trim() });
+      toast.success("Profile updated successfully!");
+      setHasChanges(false);
+    } catch (error) {
+      toast.error("Failed to update profile");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setName(currentUser?.name ?? "");
+    setHasChanges(false);
+  };
 
   if (!isAuthenticated) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-96">
           <div className="text-xl text-muted-foreground">Please sign in to view your profile</div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  if (currentUser === undefined) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-96">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       </DashboardLayout>
     );
@@ -53,6 +109,8 @@ export default function ProfilePage() {
                 </Label>
                 <Input
                   id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
                   className="h-11"
                 />
@@ -65,16 +123,34 @@ export default function ProfilePage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="your@email.com"
-                  className="h-11"
+                  value={currentUser?.email ?? ""}
+                  className="h-11 bg-muted"
                   disabled
                 />
               </div>
             </div>
 
             <div className="flex items-center gap-4 pt-4">
-              <Button>Save Changes</Button>
-              <Button variant="outline">Cancel</Button>
+              <Button
+                onClick={handleSave}
+                disabled={!hasChanges || isSaving}
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                disabled={!hasChanges || isSaving}
+              >
+                Cancel
+              </Button>
             </div>
           </CardContent>
         </Card>

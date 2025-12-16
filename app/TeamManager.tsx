@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +29,7 @@ export default function TeamManager() {
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
 
   // Queries
+  const currentUser = useQuery(api.users.getCurrentUser);
   const teams = useQuery(api.teams.getAll);
   const selectedTeam = useQuery(
     api.teams.getById,
@@ -210,12 +212,26 @@ export default function TeamManager() {
     );
   }
 
+  // Get first name for welcome message
+  const getFirstName = () => {
+    if (!currentUser?.name) return null;
+    return currentUser.name.split(" ")[0];
+  };
+
   // Team selection view (Dashboard)
   if (!selectedTeamId) {
+    const firstName = getFirstName();
+
     return (
       <div>
         {/* Page Header */}
         <div className="mb-8">
+          {firstName ? (
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span className="text-primary font-medium">Welcome back, {firstName}!</span>
+            </div>
+          ) : null}
           <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
           <p className="text-muted-foreground mt-1">Manage your teams and track player development</p>
         </div>
