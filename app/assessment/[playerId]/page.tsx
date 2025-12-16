@@ -97,11 +97,11 @@ export default function AssessmentPage() {
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="mb-4 text-muted-foreground hover:text-foreground"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Team
@@ -116,8 +116,8 @@ export default function AssessmentPage() {
 
         {/* Player Info */}
         <Card className="mb-6">
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <CardContent className="p-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label>Position</Label>
                 <Input
@@ -148,7 +148,7 @@ export default function AssessmentPage() {
 
         {/* Evaluator Info */}
         <Card className="mb-6">
-          <CardContent className="p-4">
+          <CardContent className="p-5">
             <div className="space-y-2">
               <Label>Evaluator Name</Label>
               <Input
@@ -189,7 +189,7 @@ export default function AssessmentPage() {
               </div>
             </CardHeader>
 
-            <CardContent className="p-4">
+            <CardContent className="p-5">
               {category.skills.map((skill) => {
                 const key = getLegacyRatingKey(category.name, skill.name);
                 const currentRating = ratings[key];
@@ -254,7 +254,7 @@ export default function AssessmentPage() {
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 no-print">
+        <div className="flex gap-4 no-print">
           <Button onClick={handleSaveAssessment} className="flex-1" size="lg">
             <Save className="h-4 w-4 mr-2" />
             Save Assessment

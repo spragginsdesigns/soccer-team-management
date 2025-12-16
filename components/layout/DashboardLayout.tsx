@@ -43,7 +43,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <MobileHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Page Content */}
-        <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen p-4 md:p-6">
+        <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen p-5 md:p-8 lg:p-10">
           {children}
         </main>
       </div>

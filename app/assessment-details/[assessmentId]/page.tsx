@@ -33,11 +33,11 @@ export default function AssessmentDetailsPage() {
     <DashboardLayout>
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div className="mb-6">
+        <div className="mb-8">
           <Button
             variant="ghost"
             onClick={() => router.back()}
-            className="mb-4 text-muted-foreground hover:text-foreground"
+            className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
@@ -51,7 +51,7 @@ export default function AssessmentDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-5 w-5 text-muted-foreground" />
                   <div>
@@ -85,7 +85,7 @@ export default function AssessmentDetailsPage() {
           const categoryAvg = calculateCategoryAverage(category, assessment.ratings ?? {});
 
           return (
-            <Card key={category.id} className="mb-4 overflow-hidden">
+            <Card key={category.id} className="mb-6 overflow-hidden">
               <CardHeader className="bg-primary text-primary-foreground">
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-xl">{category.name}</CardTitle>
@@ -94,7 +94,7 @@ export default function AssessmentDetailsPage() {
                   </Badge>
                 </div>
               </CardHeader>
-              <CardContent className="p-4">
+              <CardContent className="p-5">
                 {category.skills.map((skill) => {
                   const key = getLegacyRatingKey(category.name, skill.name);
                   const rating = assessment.ratings?.[key];

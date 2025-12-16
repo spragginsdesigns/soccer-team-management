@@ -411,21 +411,21 @@ export default function TeamManager() {
       </Dialog>
 
       {/* Page Header */}
-      <div className="mb-6">
+      <div className="mb-8">
         <Button
           variant="ghost"
           onClick={() => setSelectedTeamId(null)}
-          className="mb-4 text-muted-foreground hover:text-foreground"
+          className="mb-4 -ml-2 text-muted-foreground hover:text-foreground"
         >
           <ChevronLeft className="h-4 w-4 mr-1" />
           Back to Dashboard
         </Button>
         <h1 className="text-3xl font-bold text-foreground">{teamName || "Team Details"}</h1>
-        <p className="text-muted-foreground mt-1">Manage roster and track player progress</p>
+        <p className="text-muted-foreground mt-2">Manage roster and track player progress</p>
       </div>
 
       {/* Team Info */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-medium">Team Name</CardTitle>
@@ -455,20 +455,20 @@ export default function TeamManager() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-wrap gap-3 mb-6">
-        <Button onClick={() => setShowAddPlayer(true)}>
+      <div className="flex flex-wrap gap-4 mb-8">
+        <Button onClick={() => setShowAddPlayer(true)} size="lg">
           <Plus className="h-4 w-4 mr-2" />
           Add Player
         </Button>
-        <Button onClick={handleSaveTeamData} variant="secondary">
+        <Button onClick={handleSaveTeamData} variant="secondary" size="lg">
           <Save className="h-4 w-4 mr-2" />
           Save Changes
         </Button>
-        <Button onClick={exportData} variant="outline">
+        <Button onClick={exportData} variant="outline" size="lg">
           <Download className="h-4 w-4 mr-2" />
           Export CSV
         </Button>
-        <Button onClick={handleDeleteTeam} variant="destructive">
+        <Button onClick={handleDeleteTeam} variant="destructive" size="lg">
           <Trash2 className="h-4 w-4 mr-2" />
           Delete Team
         </Button>
@@ -476,13 +476,13 @@ export default function TeamManager() {
 
       {/* Team Roster */}
       <Card>
-        <CardHeader className="bg-primary text-primary-foreground rounded-t-xl">
+        <CardHeader className="bg-primary text-primary-foreground rounded-t-xl py-5 px-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Users className="h-5 w-5" />
+              <Users className="h-6 w-6" />
               <CardTitle className="text-xl">Team Roster</CardTitle>
             </div>
-            <Badge variant="secondary" className="bg-background text-foreground">
+            <Badge variant="secondary" className="bg-background text-foreground px-3 py-1">
               {players?.length || 0} Players
             </Badge>
           </div>
@@ -509,36 +509,38 @@ export default function TeamManager() {
                   const latestRating = getPlayerLatestRating(player);
 
                   return (
-                    <div key={player._id} className="p-4 space-y-3">
-                      <div>
+                    <div key={player._id} className="p-5 space-y-4">
+                      <div className="space-y-2">
                         <Label className="text-xs text-muted-foreground">Player Name</Label>
                         <Input
                           value={player.name}
                           onChange={(e) => handleUpdatePlayerInfo(player._id, "name", e.target.value)}
-                          className="font-semibold"
+                          className="font-semibold h-11"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
                           <Label className="text-xs text-muted-foreground">Jersey #</Label>
                           <Input
                             value={player.jerseyNumber ?? player.age ?? ""}
                             onChange={(e) => handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)}
                             placeholder="#"
+                            className="h-11"
                           />
                         </div>
-                        <div>
+                        <div className="space-y-2">
                           <Label className="text-xs text-muted-foreground">Position</Label>
                           <Input
                             value={player.position || ""}
                             onChange={(e) => handleUpdatePlayerInfo(player._id, "position", e.target.value)}
                             placeholder="Position"
+                            className="h-11"
                           />
                         </div>
                       </div>
 
-                      <div className="flex items-center justify-around py-3 bg-muted rounded-lg">
+                      <div className="flex items-center justify-around py-4 bg-muted rounded-lg">
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1">Assessments</p>
                           <Badge
@@ -549,14 +551,14 @@ export default function TeamManager() {
                             {player.assessments?.length || 0}
                           </Badge>
                         </div>
-                        <Separator orientation="vertical" className="h-10" />
+                        <Separator orientation="vertical" className="h-12" />
                         <div className="text-center">
                           <p className="text-xs text-muted-foreground mb-1">Rating</p>
                           <p className="text-xl font-bold text-foreground">{latestRating}</p>
                         </div>
                         {progress !== null && (
                           <>
-                            <Separator orientation="vertical" className="h-10" />
+                            <Separator orientation="vertical" className="h-12" />
                             <div className="text-center">
                               <p className="text-xs text-muted-foreground mb-1">Progress</p>
                               <div className="flex items-center justify-center gap-1">
@@ -574,14 +576,14 @@ export default function TeamManager() {
                         )}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button asChild>
+                      <div className="grid grid-cols-2 gap-4 pt-2">
+                        <Button asChild size="lg">
                           <Link href={`/assessment/${player._id}`}>
                             <Calendar className="h-4 w-4 mr-2" />
                             Assess
                           </Link>
                         </Button>
-                        <Button variant="destructive" onClick={() => handleDeletePlayer(player._id)}>
+                        <Button variant="destructive" size="lg" onClick={() => handleDeletePlayer(player._id)}>
                           <Trash2 className="h-4 w-4 mr-2" />
                           Delete
                         </Button>
@@ -592,17 +594,17 @@ export default function TeamManager() {
               </div>
 
               {/* Desktop View - Table */}
-              <div className="hidden lg:block overflow-x-auto">
+              <div className="hidden lg:block overflow-x-auto p-1">
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-muted/50">
-                      <TableHead>Player Name</TableHead>
-                      <TableHead>Jersey #</TableHead>
-                      <TableHead>Position</TableHead>
-                      <TableHead className="text-center">Assessments</TableHead>
-                      <TableHead className="text-center">Latest Rating</TableHead>
-                      <TableHead className="text-center">Progress</TableHead>
-                      <TableHead className="text-center">Actions</TableHead>
+                      <TableHead className="py-4">Player Name</TableHead>
+                      <TableHead className="py-4">Jersey #</TableHead>
+                      <TableHead className="py-4">Position</TableHead>
+                      <TableHead className="py-4 text-center">Assessments</TableHead>
+                      <TableHead className="py-4 text-center">Latest Rating</TableHead>
+                      <TableHead className="py-4 text-center">Progress</TableHead>
+                      <TableHead className="py-4 text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -610,30 +612,30 @@ export default function TeamManager() {
                       const progress = getPlayerProgress(player);
                       return (
                         <TableRow key={player._id}>
-                          <TableCell>
+                          <TableCell className="py-4">
                             <Input
                               value={player.name}
                               onChange={(e) => handleUpdatePlayerInfo(player._id, "name", e.target.value)}
-                              className="max-w-[200px]"
+                              className="max-w-[200px] h-10"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-4">
                             <Input
                               value={player.jerseyNumber ?? player.age ?? ""}
                               onChange={(e) => handleUpdatePlayerInfo(player._id, "jerseyNumber", e.target.value)}
                               placeholder="#"
-                              className="w-20"
+                              className="w-20 h-10"
                             />
                           </TableCell>
-                          <TableCell>
+                          <TableCell className="py-4">
                             <Input
                               value={player.position || ""}
                               onChange={(e) => handleUpdatePlayerInfo(player._id, "position", e.target.value)}
                               placeholder="Position"
-                              className="w-28"
+                              className="w-32 h-10"
                             />
                           </TableCell>
-                          <TableCell className="text-center">
+                          <TableCell className="py-4 text-center">
                             <Badge
                               variant="secondary"
                               className="cursor-pointer hover:bg-accent"
@@ -643,12 +645,12 @@ export default function TeamManager() {
                               {player.assessments?.length || 0}
                             </Badge>
                           </TableCell>
-                          <TableCell className="text-center">
+                          <TableCell className="py-4 text-center">
                             <span className="text-lg font-bold text-foreground">
                               {getPlayerLatestRating(player)}
                             </span>
                           </TableCell>
-                          <TableCell className="text-center">
+                          <TableCell className="py-4 text-center">
                             {progress !== null && (
                               <div className="flex items-center justify-center gap-1">
                                 {parseFloat(progress) >= 0 ? (
@@ -662,16 +664,15 @@ export default function TeamManager() {
                               </div>
                             )}
                           </TableCell>
-                          <TableCell>
-                            <div className="flex gap-2 justify-center">
-                              <Button asChild size="sm">
+                          <TableCell className="py-4">
+                            <div className="flex gap-3 justify-center">
+                              <Button asChild>
                                 <Link href={`/assessment/${player._id}`}>
                                   Assess
                                 </Link>
                               </Button>
                               <Button
                                 variant="destructive"
-                                size="sm"
                                 onClick={() => handleDeletePlayer(player._id)}
                               >
                                 <Trash2 className="h-4 w-4" />
