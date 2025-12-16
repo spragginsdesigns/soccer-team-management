@@ -59,12 +59,6 @@ export default function TeamManager() {
     }
   }, [selectedTeam]);
 
-  // Auto-select first team if only one exists
-  useEffect(() => {
-    if (teams && teams.length === 1 && !selectedTeamId) {
-      setSelectedTeamId(teams[0]._id);
-    }
-  }, [teams, selectedTeamId]);
 
   const handleCreateTeam = async () => {
     if (!newTeamName.trim()) {
