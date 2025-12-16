@@ -217,85 +217,100 @@ export const exportAllData = query({
       return null;
     }
 
-    // Get user profile
-    const profile = await ctx.db
-      .query("userProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .first();
+    try {
+      // Get user profile
+      const profile = await ctx.db
+        .query("userProfiles")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .first();
 
-    // Get user's team memberships
-    const memberships = await ctx.db
-      .query("teamMembers")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
+      // Get user's team memberships
+      const memberships = await ctx.db
+        .query("teamMembers")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect();
 
-    // Get teams the user owns or is a member of
-    const teams = await Promise.all(
-      memberships.map(async (m) => {
-        const team = await ctx.db.get(m.teamId);
-        if (!team) return null;
+      // Get teams the user owns or is a member of
+      const teams = await Promise.all(
+        memberships.map(async (m) => {
+          try {
+            const team = await ctx.db.get(m.teamId);
+            if (!team) return null;
 
-        // Only include full team data if user is owner
-        if (m.role === "owner") {
-          // Get players for this team
-          const players = await ctx.db
-            .query("players")
-            .withIndex("by_team", (q) => q.eq("teamId", m.teamId))
-            .collect();
+            // Only include full team data if user is owner
+            if (m.role === "owner") {
+              // Get players for this team
+              const players = await ctx.db
+                .query("players")
+                .withIndex("by_team", (q) => q.eq("teamId", m.teamId))
+                .collect();
 
-          // Get assessments for this team
-          const assessments = await ctx.db
-            .query("assessments")
-            .withIndex("by_team", (q) => q.eq("teamId", m.teamId))
-            .collect();
+              // Get assessments for this team
+              const assessments = await ctx.db
+                .query("assessments")
+                .withIndex("by_team", (q) => q.eq("teamId", m.teamId))
+                .collect();
 
-          return {
-            team: {
-              name: team.name,
-              teamCode: team.teamCode,
-              evaluator: team.evaluator,
-              createdAt: team.createdAt,
-            },
-            role: m.role,
-            players: players.map((p) => ({
-              name: p.name,
-              jerseyNumber: p.jerseyNumber,
-              position: p.position,
-              createdAt: p.createdAt,
-            })),
-            assessments: assessments.map((a) => ({
-              date: a.date,
-              evaluator: a.evaluator,
-              ratings: a.ratings,
-              notes: a.notes,
-              overallRating: a.overallRating,
-              createdAt: a.createdAt,
-            })),
-          };
-        }
+              return {
+                team: {
+                  name: team.name,
+                  teamCode: team.teamCode,
+                  evaluator: team.evaluator,
+                  createdAt: team.createdAt,
+                },
+                role: m.role,
+                players: players.map((p) => ({
+                  name: p.name,
+                  jerseyNumber: p.jerseyNumber,
+                  position: p.position,
+                  createdAt: p.createdAt,
+                })),
+                assessments: assessments.map((a) => ({
+                  date: a.date,
+                  evaluator: a.evaluator,
+                  ratings: a.ratings,
+                  notes: a.notes,
+                  overallRating: a.overallRating,
+                  createdAt: a.createdAt,
+                })),
+              };
+            }
 
-        // For non-owners, just include basic membership info
-        return {
-          team: {
-            name: team.name,
-            teamCode: team.teamCode,
-          },
-          role: m.role,
-        };
-      })
-    );
-
-    return {
-      exportDate: new Date().toISOString(),
-      profile: profile
-        ? {
-            role: profile.role,
-            phone: profile.phone,
-            createdAt: profile.createdAt,
+            // For non-owners, just include basic membership info
+            return {
+              team: {
+                name: team.name,
+                teamCode: team.teamCode,
+              },
+              role: m.role,
+            };
+          } catch {
+            // Skip teams that can't be fetched
+            return null;
           }
-        : null,
-      teams: teams.filter((t) => t !== null),
-    };
+        })
+      );
+
+      return {
+        exportDate: new Date().toISOString(),
+        profile: profile
+          ? {
+              role: profile.role,
+              phone: profile.phone,
+              createdAt: profile.createdAt,
+            }
+          : null,
+        teams: teams.filter((t) => t !== null),
+      };
+    } catch {
+      // Return minimal data if export fails
+      return {
+        exportDate: new Date().toISOString(),
+        profile: null,
+        teams: [],
+        error: "Some data could not be exported",
+      };
+    }
   },
 });
 
