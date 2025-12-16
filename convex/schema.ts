@@ -74,4 +74,37 @@ export default defineSchema({
   })
     .index("by_player", ["playerId"])
     .index("by_team", ["teamId"]),
+
+  // Messaging: Conversations (threads between users within a team)
+  conversations: defineTable({
+    teamId: v.id("teams"),
+    type: v.union(v.literal("announcement"), v.literal("direct")),
+    participantIds: v.array(v.id("users")), // For DMs: 2 users, For announcements: empty (all team)
+    title: v.optional(v.string()), // For announcements
+    lastMessageAt: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_team", ["teamId"])
+    .index("by_team_and_last_message", ["teamId", "lastMessageAt"]),
+
+  // Messaging: Messages within conversations
+  messages: defineTable({
+    conversationId: v.id("conversations"),
+    teamId: v.id("teams"), // Denormalized for efficient queries
+    senderId: v.id("users"),
+    content: v.string(),
+    createdAt: v.number(),
+    editedAt: v.optional(v.number()),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_conversation_and_date", ["conversationId", "createdAt"]),
+
+  // Messaging: Read receipts (tracks last read time per user per conversation)
+  messageReads: defineTable({
+    conversationId: v.id("conversations"),
+    userId: v.id("users"),
+    lastReadAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_conversation_and_user", ["conversationId", "userId"]),
 });

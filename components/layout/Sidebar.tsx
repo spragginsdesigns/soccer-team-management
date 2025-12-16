@@ -5,6 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import {
   Users,
   LayoutDashboard,
@@ -13,9 +15,11 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  MessageSquare,
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 interface NavItem {
   label: string;
@@ -35,6 +39,11 @@ const navItems: NavItem[] = [
     icon: <Users className="h-5 w-5" />,
   },
   {
+    label: "Messages",
+    href: "/messages",
+    icon: <MessageSquare className="h-5 w-5" />,
+  },
+  {
     label: "Profile",
     href: "/profile",
     icon: <UserCircle className="h-5 w-5" />,
@@ -50,6 +59,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { signOut } = useAuthActions();
   const [collapsed, setCollapsed] = useState(false);
+  const unreadCount = useQuery(api.messages.getUnreadCount) ?? 0;
 
   return (
     <aside
@@ -92,6 +102,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 p-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
+          const showBadge = item.href === "/messages" && unreadCount > 0;
           return (
             <Link
               key={item.href}
@@ -105,8 +116,22 @@ export function Sidebar() {
               )}
               title={collapsed ? item.label : undefined}
             >
-              {item.icon}
-              {!collapsed && <span>{item.label}</span>}
+              <span className="relative">
+                {item.icon}
+                {showBadge && collapsed && (
+                  <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary" />
+                )}
+              </span>
+              {!collapsed && (
+                <>
+                  <span className="flex-1">{item.label}</span>
+                  {showBadge && (
+                    <Badge variant="default" className="h-5 min-w-5 px-1.5 text-xs">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </Badge>
+                  )}
+                </>
+              )}
             </Link>
           );
         })}

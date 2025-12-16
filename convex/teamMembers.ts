@@ -9,6 +9,26 @@ import {
   logJoinAttempt,
 } from "./lib/access";
 
+// Get current user's membership for a specific team
+export const getMembership = query({
+  args: { teamId: v.id("teams") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      return null;
+    }
+
+    const membership = await ctx.db
+      .query("teamMembers")
+      .withIndex("by_team_and_user", (q) =>
+        q.eq("teamId", args.teamId).eq("userId", userId)
+      )
+      .first();
+
+    return membership;
+  },
+});
+
 // Get all members of a team
 export const getTeamMembers = query({
   args: { teamId: v.id("teams") },
