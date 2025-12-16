@@ -91,27 +91,34 @@ export default function SettingsPage() {
             )}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {(Object.keys(roleInfo) as Role[]).map((role) => (
-                <Button
+                <button
                   key={role}
-                  variant={userProfile?.role === role ? "default" : "outline"}
-                  className="h-auto py-4 flex flex-col items-center gap-2"
                   onClick={() => handleRoleChange(role)}
                   disabled={isChangingRole || userProfile?.role === role}
+                  className={`p-4 rounded-lg border text-center transition-all ${
+                    userProfile?.role === role
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-background border-border hover:border-primary/50"
+                  } ${isChangingRole || userProfile?.role === role ? "opacity-70 cursor-not-allowed" : "cursor-pointer"}`}
                 >
                   {isChangingRole ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <Loader2 className="h-5 w-5 animate-spin mx-auto" />
                   ) : (
                     <>
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <div className={`h-10 w-10 rounded-full mx-auto mb-2 flex items-center justify-center ${
+                        userProfile?.role === role ? "bg-primary-foreground/20" : "bg-primary/10"
+                      }`}>
                         {roleInfo[role].icon}
                       </div>
-                      <span className="font-medium">{roleInfo[role].label}</span>
-                      <span className="text-xs text-muted-foreground text-center">
+                      <p className="font-medium">{roleInfo[role].label}</p>
+                      <p className={`text-xs mt-1 ${
+                        userProfile?.role === role ? "text-primary-foreground/70" : "text-muted-foreground"
+                      }`}>
                         {roleInfo[role].description}
-                      </span>
+                      </p>
                     </>
                   )}
-                </Button>
+                </button>
               ))}
             </div>
           </CardContent>
