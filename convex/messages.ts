@@ -195,7 +195,7 @@ export const getTeamMembersForMessaging = query({
           name: user?.name ?? "Unknown",
           email: user?.email ?? "",
           role: member.role,
-          isCurrentUser: member.userId === access.userId,
+          isCurrentUser: String(member.userId) === String(access.userId),
         };
       })
     );
