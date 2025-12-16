@@ -70,7 +70,7 @@ export default function PlayerPortal() {
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Ask your coach to link your account to your player profile.
-                Once linked, you'll be able to see your assessments and track your progress.
+                Once linked, you&apos;ll be able to see your assessments and track your progress.
               </p>
               <Badge variant="secondary" className="text-sm">
                 Waiting for coach to link your profile
@@ -125,7 +125,7 @@ export default function PlayerPortal() {
           <CardHeader>
             <CardTitle>Coming Soon</CardTitle>
             <CardDescription>
-              We're working on more features for the player portal
+              We&apos;re working on more features for the player portal
             </CardDescription>
           </CardHeader>
           <CardContent>

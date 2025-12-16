@@ -54,7 +54,7 @@ export default function ParentPortal() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Parent Portal</h1>
           <p className="text-muted-foreground mt-2">
-            Monitor your child's development and progress
+            Monitor your child&apos;s development and progress
           </p>
         </div>
 
@@ -68,8 +68,8 @@ export default function ParentPortal() {
                 No Players Linked Yet
               </h2>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Ask your child's coach to link your account to your player's profile.
-                Once linked, you'll be able to view their assessments and track their development.
+                Ask your child&apos;s coach to link your account to your player&apos;s profile.
+                Once linked, you&apos;ll be able to view their assessments and track their development.
               </p>
               <Badge variant="secondary" className="text-sm">
                 Waiting for coach to link player profile
@@ -145,7 +145,7 @@ export default function ParentPortal() {
               Coming Soon
             </CardTitle>
             <CardDescription>
-              We're working on more features for parents
+              We&apos;re working on more features for parents
             </CardDescription>
           </CardHeader>
           <CardContent>
