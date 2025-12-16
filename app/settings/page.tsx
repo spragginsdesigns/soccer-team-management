@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -55,6 +56,8 @@ export default function SettingsPage() {
   const [isChangingRole, setIsChangingRole] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
 
   const handleExportData = async () => {
     if (!userData) {
@@ -83,6 +86,11 @@ export default function SettingsPage() {
   };
 
   const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast.error("Please type DELETE to confirm");
+      return;
+    }
+
     setIsDeleting(true);
     try {
       await deleteAccount();
@@ -93,6 +101,11 @@ export default function SettingsPage() {
       toast.error("Failed to delete account");
       setIsDeleting(false);
     }
+  };
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteConfirmText("");
+    setShowDeleteConfirm(true);
   };
 
   const handleRoleChange = async (newRole: Role) => {
@@ -258,9 +271,9 @@ export default function SettingsPage() {
                 )}
                 Export All Data
               </Button>
-              <AlertDialog>
+              <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
                 <AlertDialogTrigger asChild>
-                  <Button variant="destructive" disabled={isDeleting}>
+                  <Button variant="destructive" disabled={isDeleting} onClick={handleOpenDeleteDialog}>
                     {isDeleting ? (
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     ) : (
@@ -271,20 +284,42 @@ export default function SettingsPage() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your account
-                      and remove all your data including teams, players, and assessments.
+                    <AlertDialogTitle className="text-destructive">⚠️ Delete Account Permanently</AlertDialogTitle>
+                    <AlertDialogDescription className="space-y-3">
+                      <span className="block">
+                        This action <strong>cannot be undone</strong>. This will permanently delete:
+                      </span>
+                      <ul className="list-disc list-inside text-sm space-y-1">
+                        <li>Your account and profile</li>
+                        <li>All teams you own</li>
+                        <li>All players in your teams</li>
+                        <li>All assessment data</li>
+                      </ul>
+                      <span className="block pt-2">
+                        To confirm, type <strong className="text-destructive">DELETE</strong> below:
+                      </span>
                     </AlertDialogDescription>
                   </AlertDialogHeader>
+                  <div className="py-2">
+                    <Input
+                      value={deleteConfirmText}
+                      onChange={(e) => setDeleteConfirmText(e.target.value)}
+                      placeholder="Type DELETE to confirm"
+                      className="border-destructive/50 focus-visible:ring-destructive"
+                    />
+                  </div>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
+                    <AlertDialogCancel onClick={() => setDeleteConfirmText("")}>Cancel</AlertDialogCancel>
+                    <Button
+                      variant="destructive"
                       onClick={handleDeleteAccount}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      disabled={deleteConfirmText !== "DELETE" || isDeleting}
                     >
-                      Delete Account
-                    </AlertDialogAction>
+                      {isDeleting ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : null}
+                      I understand, delete my account
+                    </Button>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>

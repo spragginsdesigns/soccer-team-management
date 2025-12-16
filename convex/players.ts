@@ -1,24 +1,13 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { verifyTeamAccess, verifyTeamModifyAccess } from "./lib/access";
 
-// Helper to verify team ownership
-async function verifyTeamOwnership(ctx: any, teamId: any) {
-  const userId = await getAuthUserId(ctx);
-  if (!userId) return null;
-
-  const team = await ctx.db.get(teamId);
-  if (!team || team.userId !== userId) return null;
-
-  return { userId, team };
-}
-
-// Get all players for a team (must own the team)
+// Get all players for a team (must be team member)
 export const getByTeam = query({
   args: { teamId: v.id("teams") },
   handler: async (ctx, args) => {
-    const ownership = await verifyTeamOwnership(ctx, args.teamId);
-    if (!ownership) return [];
+    const access = await verifyTeamAccess(ctx, args.teamId);
+    if (!access) return [];
 
     const players = await ctx.db
       .query("players")
@@ -47,19 +36,16 @@ export const getByTeam = query({
   },
 });
 
-// Get a single player with their assessments (must own the team)
+// Get a single player with their assessments (must be team member)
 export const getById = query({
   args: { playerId: v.id("players") },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) return null;
-
     const player = await ctx.db.get(args.playerId);
     if (!player) return null;
 
-    // Verify ownership of the team
-    const team = await ctx.db.get(player.teamId);
-    if (!team || team.userId !== userId) return null;
+    // Verify team membership
+    const access = await verifyTeamAccess(ctx, player.teamId);
+    if (!access) return null;
 
     const assessments = await ctx.db
       .query("assessments")
@@ -76,7 +62,7 @@ export const getById = query({
   },
 });
 
-// Create a new player (must own the team)
+// Create a new player (must be owner or coach)
 export const create = mutation({
   args: {
     teamId: v.id("teams"),
@@ -86,9 +72,9 @@ export const create = mutation({
     position: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const ownership = await verifyTeamOwnership(ctx, args.teamId);
-    if (!ownership) {
-      throw new Error("Not authenticated or team not found");
+    const access = await verifyTeamModifyAccess(ctx, args.teamId);
+    if (!access) {
+      throw new Error("Not authenticated or access denied");
     }
 
     const now = Date.now();
@@ -109,7 +95,7 @@ export const create = mutation({
   },
 });
 
-// Update player info (must own the team)
+// Update player info (must be owner or coach)
 export const update = mutation({
   args: {
     id: v.id("players"),
@@ -119,19 +105,14 @@ export const update = mutation({
     position: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
     const player = await ctx.db.get(args.id);
     if (!player) {
       throw new Error("Player not found");
     }
 
-    // Verify ownership of the team
-    const team = await ctx.db.get(player.teamId);
-    if (!team || team.userId !== userId) {
+    // Verify team modify access
+    const access = await verifyTeamModifyAccess(ctx, player.teamId);
+    if (!access) {
       throw new Error("Access denied");
     }
 
@@ -155,23 +136,18 @@ export const update = mutation({
   },
 });
 
-// Delete a player and all their assessments (must own the team)
+// Delete a player and all their assessments (must be owner or coach)
 export const remove = mutation({
   args: { id: v.id("players") },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) {
-      throw new Error("Not authenticated");
-    }
-
     const player = await ctx.db.get(args.id);
     if (!player) {
       throw new Error("Player not found");
     }
 
-    // Verify ownership of the team
-    const team = await ctx.db.get(player.teamId);
-    if (!team || team.userId !== userId) {
+    // Verify team modify access
+    const access = await verifyTeamModifyAccess(ctx, player.teamId);
+    if (!access) {
       throw new Error("Access denied");
     }
 
