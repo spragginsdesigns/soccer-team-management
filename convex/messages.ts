@@ -93,7 +93,7 @@ export const getConversationMessages = query({
     // For DMs, verify user is a participant
     if (
       conversation.type === "direct" &&
-      !conversation.participantIds.includes(userId)
+      !conversation.participantIds.some((id) => id === userId)
     ) {
       return [];
     }
@@ -144,7 +144,7 @@ export const getUnreadCount = query({
 
       for (const conv of conversations) {
         // Skip DMs where user is not a participant
-        if (conv.type === "direct" && !conv.participantIds.includes(userId)) {
+        if (conv.type === "direct" && !conv.participantIds.some((id) => id === userId)) {
           continue;
         }
 
@@ -322,7 +322,7 @@ export const sendMessage = mutation({
     // For DMs, verify user is a participant
     if (
       conversation.type === "direct" &&
-      !conversation.participantIds.includes(userId)
+      !conversation.participantIds.some((id) => id === userId)
     ) {
       throw new Error("Not a participant in this conversation");
     }
@@ -461,7 +461,7 @@ export const getConversation = query({
     // For DMs, verify user is a participant
     if (
       conversation.type === "direct" &&
-      !conversation.participantIds.includes(userId)
+      !conversation.participantIds.some((id) => id === userId)
     ) {
       return null;
     }
