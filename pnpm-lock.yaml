@@ -13,7 +13,7 @@ importers:
         version: 0.37.4
       '@convex-dev/auth':
         specifier: ^0.0.90
-        version: 0.0.90(@auth/core@0.37.4)(convex@1.29.0(react@19.2.0))(react@19.2.0)
+        version: 0.0.90(@auth/core@0.37.4)(convex@1.31.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-dialog':
         specifier: ^1.1.15
         version: 1.1.15(@types/react-dom@19.2.2(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -39,8 +39,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       convex:
-        specifier: ^1.17.5
-        version: 1.29.0(react@19.2.0)
+        specifier: ^1.31.0
+        version: 1.31.0(react@19.2.0)
       lucide-react:
         specifier: ^0.553.0
         version: 0.553.0(react@19.2.0)
@@ -1172,8 +1172,8 @@ packages:
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
 
-  convex@1.29.0:
-    resolution: {integrity: sha512-uoIPXRKIp2eLCkkR9WJ2vc9NtgQtx8Pml59WPUahwbrd5EuW2WLI/cf2E7XrUzOSifdQC3kJZepisk4wJNTJaA==}
+  convex@1.31.0:
+    resolution: {integrity: sha512-ht3dtpWQmxX62T8PT3p/5PDlRzSW5p2IDTP4exKjQ5dqmvhtn1wLFakJAX4CCeu1s0Ch0dKY5g2dk/wETTRAOw==}
     engines: {node: '>=18.0.0', npm: '>=7.0.0'}
     hasBin: true
     peerDependencies:
@@ -2510,12 +2510,12 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
 
-  '@convex-dev/auth@0.0.90(@auth/core@0.37.4)(convex@1.29.0(react@19.2.0))(react@19.2.0)':
+  '@convex-dev/auth@0.0.90(@auth/core@0.37.4)(convex@1.31.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@auth/core': 0.37.4
       '@oslojs/crypto': 1.0.1
       '@oslojs/encoding': 1.1.0
-      convex: 1.29.0(react@19.2.0)
+      convex: 1.31.0(react@19.2.0)
       cookie: 1.1.1
       is-network-error: 1.3.0
       jose: 5.10.0
@@ -3423,7 +3423,7 @@ snapshots:
 
   concat-map@0.0.1: {}
 
-  convex@1.29.0(react@19.2.0):
+  convex@1.31.0(react@19.2.0):
     dependencies:
       esbuild: 0.25.4
       prettier: 3.6.2
