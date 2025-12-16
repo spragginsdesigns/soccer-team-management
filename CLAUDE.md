@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 FormUp is a soccer team management web app for tracking player development and assessments. Built with Next.js 15 (App Router), Convex for the backend/database, and Tailwind CSS. Supports multi-team access with role-based permissions (coach/player/parent).
 
+**Production URL**: https://soccer-team-management-umber.vercel.app (Vercel hosting)
+
 ## Commands
 
 ```bash
