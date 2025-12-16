@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -9,7 +10,6 @@ import {
   LayoutDashboard,
   UserCircle,
   LogOut,
-  Trophy,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -62,13 +62,13 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
         {!collapsed && (
           <Link href="/" className="flex items-center gap-2">
-            <Trophy className="h-8 w-8 text-primary" />
+            <Image src="/logo.png" alt="FormUp" width={32} height={32} className="h-8 w-8" />
             <span className="text-xl font-bold text-foreground">FormUp</span>
           </Link>
         )}
         {collapsed && (
           <Link href="/" className="mx-auto">
-            <Trophy className="h-8 w-8 text-primary" />
+            <Image src="/logo.png" alt="FormUp" width={32} height={32} className="h-8 w-8" />
           </Link>
         )}
         <Button
