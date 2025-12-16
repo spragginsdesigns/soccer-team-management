@@ -56,11 +56,14 @@ export default function MessagesPage() {
     );
   }
 
+  // Check if we're showing conversation view on mobile
+  const isMobileConversationView = selectedConversationId !== null;
+
   return (
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-6rem)]">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+        {/* Header - hidden on mobile when viewing conversation */}
+        <div className={`flex items-center justify-between mb-4 ${isMobileConversationView ? "hidden md:flex" : "flex"}`}>
           <div>
             <h1 className="text-2xl font-bold">Messages</h1>
             <p className="text-muted-foreground text-sm">
@@ -94,8 +97,8 @@ export default function MessagesPage() {
 
         {/* Main content */}
         <div className="flex-1 flex gap-4 min-h-0">
-          {/* Conversation list */}
-          <Card className="w-80 flex-shrink-0 overflow-hidden">
+          {/* Conversation list - hidden on mobile when viewing conversation */}
+          <Card className={`md:w-80 flex-shrink-0 overflow-hidden ${isMobileConversationView ? "hidden md:block" : "w-full md:w-80"}`}>
             <CardContent className="p-0 h-full">
               {selectedTeamId && (
                 <ConversationList
@@ -107,11 +110,14 @@ export default function MessagesPage() {
             </CardContent>
           </Card>
 
-          {/* Conversation view */}
-          <Card className="flex-1 overflow-hidden">
+          {/* Conversation view - full width on mobile, shown only when conversation selected */}
+          <Card className={`flex-1 overflow-hidden ${isMobileConversationView ? "block" : "hidden md:block"}`}>
             <CardContent className="p-0 h-full">
               {selectedConversationId ? (
-                <ConversationView conversationId={selectedConversationId} />
+                <ConversationView
+                  conversationId={selectedConversationId}
+                  onBack={() => setSelectedConversationId(null)}
+                />
               ) : (
                 <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                   <MessageSquare className="h-12 w-12 mb-4" />

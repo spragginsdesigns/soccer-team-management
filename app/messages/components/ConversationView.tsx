@@ -4,15 +4,17 @@ import { useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Loader2, Megaphone, User } from "lucide-react";
+import { ArrowLeft, Loader2, Megaphone, User } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { MessageBubble } from "./MessageBubble";
 import { MessageInput } from "./MessageInput";
 
 interface ConversationViewProps {
   conversationId: Id<"conversations">;
+  onBack?: () => void;
 }
 
-export function ConversationView({ conversationId }: ConversationViewProps) {
+export function ConversationView({ conversationId, onBack }: ConversationViewProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const conversation = useQuery(api.messages.getConversation, { conversationId });
@@ -65,7 +67,17 @@ export function ConversationView({ conversationId }: ConversationViewProps) {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-border">
+      <div className="flex items-center gap-2 p-4 border-b border-border">
+        {onBack && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="md:hidden h-9 w-9 flex-shrink-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
         <div
           className={`h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 ${
             conversation.type === "announcement"
@@ -79,8 +91,8 @@ export function ConversationView({ conversationId }: ConversationViewProps) {
             <User className="h-5 w-5" />
           )}
         </div>
-        <div>
-          <h3 className="font-semibold">{displayName}</h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold truncate">{displayName}</h3>
           <p className="text-xs text-muted-foreground">
             {conversation.type === "announcement"
               ? "Team announcement"
