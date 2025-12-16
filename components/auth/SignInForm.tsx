@@ -23,11 +23,11 @@ export function SignInForm() {
 
     try {
       await signIn("password", formData);
-      toast.success(flow === "signIn" ? "Welcome back!" : "Account created successfully!");
+      // Force full page reload to pick up new auth state from cookies
+      window.location.href = "/";
     } catch (error) {
       const message = error instanceof Error ? error.message : "Authentication failed";
       toast.error(message);
-    } finally {
       setIsLoading(false);
     }
   };
