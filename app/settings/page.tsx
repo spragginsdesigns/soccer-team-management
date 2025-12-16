@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -50,7 +50,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const { signOut } = useAuthActions();
   const userProfile = useQuery(api.userProfiles.get);
-  const userData = useQuery(api.userProfiles.exportAllData);
   const updateRole = useMutation(api.userProfiles.updateRole);
   const deleteAccount = useMutation(api.userProfiles.deleteAccount);
   const [isChangingRole, setIsChangingRole] = useState(false);
@@ -58,14 +57,27 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [wantsExport, setWantsExport] = useState(false);
+
+  // Only fetch export data when user explicitly wants to export
+  const userData = useQuery(
+    api.userProfiles.exportAllData,
+    wantsExport ? {} : "skip"
+  );
 
   const handleExportData = async () => {
-    if (!userData) {
-      toast.error("No data available to export");
+    if (!wantsExport) {
+      // First click - trigger data fetch
+      setWantsExport(true);
+      setIsExporting(true);
       return;
     }
 
-    setIsExporting(true);
+    if (!userData) {
+      toast.error("Loading data... please try again");
+      return;
+    }
+
     try {
       const dataStr = JSON.stringify(userData, null, 2);
       const blob = new Blob([dataStr], { type: "application/json" });
@@ -78,12 +90,21 @@ export default function SettingsPage() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       toast.success("Data exported successfully");
+      setWantsExport(false);
     } catch (error) {
       toast.error("Failed to export data");
     } finally {
       setIsExporting(false);
     }
   };
+
+  // Auto-export when data becomes available
+  useEffect(() => {
+    if (wantsExport && userData && isExporting) {
+      handleExportData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData, wantsExport, isExporting]);
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmText !== "DELETE") {
@@ -262,7 +283,7 @@ export default function SettingsPage() {
               <Button
                 variant="outline"
                 onClick={handleExportData}
-                disabled={isExporting || !userData}
+                disabled={isExporting}
               >
                 {isExporting ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
