@@ -103,6 +103,35 @@ export const update = mutation({
   },
 });
 
+// Update user role
+export const updateRole = mutation({
+  args: {
+    role: v.union(v.literal("coach"), v.literal("player"), v.literal("parent")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!profile) {
+      throw new Error("Profile not found");
+    }
+
+    await ctx.db.patch(profile._id, {
+      role: args.role,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 // Link a player to a parent/player account
 export const linkPlayer = mutation({
   args: {
