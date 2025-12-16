@@ -1,4 +1,4 @@
-# Soccer Team Management - Setup Guide
+# FormUp - Setup Guide
 
 ## 🚀 Quick Start
 

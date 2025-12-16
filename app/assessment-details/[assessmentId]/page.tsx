@@ -1,23 +1,50 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useState } from "react";
+import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Calendar, User, Trophy, Printer } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { ArrowLeft, Calendar, User, Trophy, Printer, Trash2 } from "lucide-react";
 import { ASSESSMENT_CATEGORIES, getLegacyRatingKey } from "@/lib/assessmentSchema";
 import { getRatingColor, getRatingLabel, calculateCategoryAverage } from "@/lib/assessmentUtils";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { toast } from "sonner";
 
 export default function AssessmentDetailsPage() {
   const router = useRouter();
   const params = useParams();
   const assessmentId = params.assessmentId as Id<"assessments">;
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const assessment = useQuery(api.assessments.getById, { id: assessmentId });
+  const deleteAssessment = useMutation(api.assessments.remove);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAssessment({ id: assessmentId });
+      toast.success("Assessment deleted successfully");
+      router.back();
+    } catch (error) {
+      toast.error("Failed to delete assessment");
+      setIsDeleting(false);
+    }
+  };
 
   if (!assessment) {
     return (
@@ -151,7 +178,7 @@ export default function AssessmentDetailsPage() {
           );
         })}
 
-        {/* Print Button */}
+        {/* Action Buttons */}
         <div className="flex gap-2 no-print mt-6">
           <Button
             onClick={() => window.print()}
@@ -161,6 +188,35 @@ export default function AssessmentDetailsPage() {
             <Printer className="h-4 w-4 mr-2" />
             Print Assessment
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" size="lg">
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Assessment?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete this assessment from{" "}
+                  {new Date(assessment.date).toLocaleDateString()}. This action
+                  cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  {isDeleting ? "Deleting..." : "Delete Assessment"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </DashboardLayout>
