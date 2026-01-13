@@ -107,4 +107,25 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_conversation_and_user", ["conversationId", "userId"]),
+
+  // Team schedule events (practices, games, meetings)
+  scheduleEvents: defineTable({
+    teamId: v.id("teams"),
+    title: v.string(),
+    type: v.union(
+      v.literal("practice"),
+      v.literal("game"),
+      v.literal("meeting"),
+      v.literal("other")
+    ),
+    startTime: v.number(), // Unix timestamp
+    endTime: v.optional(v.number()), // Optional end time
+    location: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_team", ["teamId"])
+    .index("by_team_and_start", ["teamId", "startTime"]),
 });

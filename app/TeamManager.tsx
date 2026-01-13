@@ -18,6 +18,7 @@ import { Users, Plus, Save, Download, TrendingUp, TrendingDown, Calendar, Chevro
 import { toast } from "sonner";
 import { JoinTeamDialog } from "@/components/team/JoinTeamDialog";
 import { TeamMembersCard } from "@/components/team/TeamMembersCard";
+import { TeamScheduleCard } from "@/components/team/TeamScheduleCard";
 
 export default function TeamManager() {
   const [selectedTeamId, setSelectedTeamId] = useState<Id<"teams"> | null>(null);
@@ -749,6 +750,16 @@ export default function TeamManager() {
       {selectedTeamId && (
         <div className="mt-8">
           <TeamMembersCard teamId={selectedTeamId} isOwner={isTeamOwner} />
+        </div>
+      )}
+
+      {/* Team Schedule Card */}
+      {selectedTeamId && (
+        <div className="mt-8">
+          <TeamScheduleCard
+            teamId={selectedTeamId}
+            canEdit={selectedTeam?.memberRole === "owner" || selectedTeam?.memberRole === "coach"}
+          />
         </div>
       )}
     </div>

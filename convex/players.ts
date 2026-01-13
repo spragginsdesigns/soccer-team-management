@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { verifyTeamAccess, verifyTeamModifyAccess } from "./lib/access";
+import { verifyTeamAccess, verifyTeamModifyAccess, getAuthenticatedUser } from "./lib/access";
 
 // Get all players for a team (must be team member)
 export const getByTeam = query({
@@ -163,5 +163,96 @@ export const remove = mutation({
 
     // Delete the player
     await ctx.db.delete(args.id);
+  },
+});
+
+// Get player info for a linked user (players viewing their own profile)
+export const getLinkedPlayerInfo = query({
+  args: { playerId: v.id("players") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthenticatedUser(ctx);
+    if (!userId) return null;
+
+    // Get user profile to check linked players
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!profile) return null;
+
+    // Check if this player is linked to the user
+    const linkedPlayerIds = profile.linkedPlayerIds || [];
+    const isLinked = linkedPlayerIds.some(
+      (id) => id.toString() === args.playerId.toString()
+    );
+
+    if (!isLinked) return null;
+
+    const player = await ctx.db.get(args.playerId);
+    if (!player) return null;
+
+    // Get the team info
+    const team = await ctx.db.get(player.teamId);
+
+    // Get assessments
+    const assessments = await ctx.db
+      .query("assessments")
+      .withIndex("by_player", (q) => q.eq("playerId", args.playerId))
+      .collect();
+
+    assessments.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    return {
+      ...player,
+      team: team ? { _id: team._id, name: team.name } : null,
+      assessments,
+    };
+  },
+});
+
+// Get all linked player info for the current user
+export const getMyLinkedPlayers = query({
+  handler: async (ctx) => {
+    const userId = await getAuthenticatedUser(ctx);
+    if (!userId) return [];
+
+    // Get user profile
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!profile || !profile.linkedPlayerIds?.length) return [];
+
+    // Get all linked players with their team and assessment info
+    const players = await Promise.all(
+      profile.linkedPlayerIds.map(async (playerId) => {
+        const player = await ctx.db.get(playerId);
+        if (!player) return null;
+
+        const team = await ctx.db.get(player.teamId);
+
+        const assessments = await ctx.db
+          .query("assessments")
+          .withIndex("by_player", (q) => q.eq("playerId", playerId))
+          .collect();
+
+        assessments.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        );
+
+        return {
+          ...player,
+          team: team ? { _id: team._id, name: team.name } : null,
+          assessments,
+          latestRating: assessments[0]?.overallRating ?? null,
+        };
+      })
+    );
+
+    return players.filter(Boolean);
   },
 });

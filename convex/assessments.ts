@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { verifyTeamModifyAccess } from "./lib/access";
+import { verifyTeamModifyAccess, verifyTeamAccess, getAuthenticatedUser } from "./lib/access";
 
 // Get a single assessment by ID (coaches only)
 export const getById = query({
@@ -140,5 +140,80 @@ export const remove = mutation({
     }
 
     await ctx.db.delete(args.id);
+  },
+});
+
+// Get assessments for a player (for players viewing their own assessments)
+export const getByLinkedPlayer = query({
+  args: { playerId: v.id("players") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthenticatedUser(ctx);
+    if (!userId) return [];
+
+    // Get user profile to check linked players
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!profile) return [];
+
+    // Check if this player is linked to the user
+    const linkedPlayerIds = profile.linkedPlayerIds || [];
+    const isLinked = linkedPlayerIds.some(
+      (id) => id.toString() === args.playerId.toString()
+    );
+
+    // If not linked, check if user has team access (coach/owner)
+    if (!isLinked) {
+      const player = await ctx.db.get(args.playerId);
+      if (!player) return [];
+      const access = await verifyTeamAccess(ctx, player.teamId);
+      if (!access) return [];
+    }
+
+    const assessments = await ctx.db
+      .query("assessments")
+      .withIndex("by_player", (q) => q.eq("playerId", args.playerId))
+      .collect();
+
+    // Sort by date (newest first)
+    return assessments.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+  },
+});
+
+// Get a single assessment (for players viewing their own assessments)
+export const getByIdForPlayer = query({
+  args: { id: v.id("assessments") },
+  handler: async (ctx, args) => {
+    const userId = await getAuthenticatedUser(ctx);
+    if (!userId) return null;
+
+    const assessment = await ctx.db.get(args.id);
+    if (!assessment) return null;
+
+    // Get user profile to check linked players
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!profile) return null;
+
+    // Check if assessment's player is linked to the user
+    const linkedPlayerIds = profile.linkedPlayerIds || [];
+    const isLinked = linkedPlayerIds.some(
+      (id) => id.toString() === assessment.playerId.toString()
+    );
+
+    // If not linked, check if user has team access (coach/owner)
+    if (!isLinked) {
+      const access = await verifyTeamAccess(ctx, assessment.teamId);
+      if (!access) return null;
+    }
+
+    return assessment;
   },
 });

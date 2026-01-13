@@ -14,6 +14,7 @@ import type * as http from "../http.js";
 import type * as lib_access from "../lib/access.js";
 import type * as messages from "../messages.js";
 import type * as players from "../players.js";
+import type * as scheduleEvents from "../scheduleEvents.js";
 import type * as teamMembers from "../teamMembers.js";
 import type * as teams from "../teams.js";
 import type * as userProfiles from "../userProfiles.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   "lib/access": typeof lib_access;
   messages: typeof messages;
   players: typeof players;
+  scheduleEvents: typeof scheduleEvents;
   teamMembers: typeof teamMembers;
   teams: typeof teams;
   userProfiles: typeof userProfiles;
