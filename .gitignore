@@ -38,3 +38,6 @@ next-env.d.ts
 
 # convex
 .convex
+
+# tempclaude files
+tmpclaude-*-cwd
