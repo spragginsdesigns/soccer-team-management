@@ -37,7 +37,7 @@ export function JoinTeamDialog({ open, onOpenChange, onSuccess }: JoinTeamDialog
     setIsJoining(true);
     try {
       const result = await joinTeam({ inviteCode: inviteCode.trim() });
-      toast.success(`Successfully joined ${result.teamName}!`);
+      toast.success(`Successfully joined ${result.teamName}! The team owner can adjust your access level.`);
       setInviteCode("");
       onOpenChange(false);
       onSuccess?.(result.teamId, result.teamName);

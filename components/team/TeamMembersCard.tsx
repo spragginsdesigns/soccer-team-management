@@ -15,6 +15,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Users, Copy, RefreshCw, UserMinus, Crown, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,6 +42,7 @@ export function TeamMembersCard({ teamId, isOwner }: TeamMembersCardProps) {
   const inviteCode = useQuery(api.teams.getInviteCode, { teamId });
   const generateInviteCode = useMutation(api.teamMembers.generateInviteCode);
   const removeMember = useMutation(api.teamMembers.removeMember);
+  const updateMemberRole = useMutation(api.teamMembers.updateMemberRole);
 
   const handleCopyCode = async () => {
     if (!inviteCode?.inviteCode) return;
@@ -64,6 +72,15 @@ export function TeamMembersCard({ teamId, isOwner }: TeamMembersCardProps) {
       setMemberToRemove(null);
     } catch (error: any) {
       toast.error(error.message || "Failed to remove member");
+    }
+  };
+
+  const handleRoleChange = async (memberId: Id<"teamMembers">, newRole: "coach" | "viewer", memberName: string) => {
+    try {
+      await updateMemberRole({ memberId, role: newRole });
+      toast.success(`${memberName}'s role updated to ${newRole}`);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update role");
     }
   };
 
@@ -174,7 +191,26 @@ export function TeamMembersCard({ teamId, isOwner }: TeamMembersCardProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  {getRoleBadge(member.role)}
+                  {member.role === "owner" ? (
+                    getRoleBadge(member.role)
+                  ) : isOwner ? (
+                    <Select
+                      value={member.role}
+                      onValueChange={(value: "coach" | "viewer") =>
+                        handleRoleChange(member._id, value, member.userName)
+                      }
+                    >
+                      <SelectTrigger className="w-[110px] h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="coach">Coach</SelectItem>
+                        <SelectItem value="viewer">Viewer</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    getRoleBadge(member.role)
+                  )}
                   {isOwner && member.role !== "owner" && (
                     <Button
                       variant="ghost"

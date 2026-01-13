@@ -133,9 +133,6 @@ export const generateInviteCode = mutation({
 export const joinTeam = mutation({
   args: {
     inviteCode: v.string(),
-    role: v.optional(
-      v.union(v.literal("coach"), v.literal("viewer"))
-    ),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -174,11 +171,11 @@ export const joinTeam = mutation({
       throw new Error("You are already a member of this team");
     }
 
-    // Add as member
+    // Add as viewer by default - team owner can promote to coach
     await ctx.db.insert("teamMembers", {
       teamId: team._id,
       userId,
-      role: args.role ?? "coach",
+      role: "viewer",
       joinedAt: Date.now(),
     });
 
