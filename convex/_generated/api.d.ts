@@ -13,6 +13,7 @@ import type * as auth from "../auth.js";
 import type * as http from "../http.js";
 import type * as lib_access from "../lib/access.js";
 import type * as messages from "../messages.js";
+import type * as migrations from "../migrations.js";
 import type * as players from "../players.js";
 import type * as scheduleEvents from "../scheduleEvents.js";
 import type * as teamMembers from "../teamMembers.js";
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/access": typeof lib_access;
   messages: typeof messages;
+  migrations: typeof migrations;
   players: typeof players;
   scheduleEvents: typeof scheduleEvents;
   teamMembers: typeof teamMembers;
