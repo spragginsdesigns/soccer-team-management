@@ -749,7 +749,7 @@ export default function TeamManager() {
       {/* Team Members Card */}
       {selectedTeamId && (
         <div className="mt-8">
-          <TeamMembersCard teamId={selectedTeamId} isOwner={isTeamOwner} />
+          <TeamMembersCard teamId={selectedTeamId} isOwner={isTeamOwner} memberRole={selectedTeam?.memberRole} />
         </div>
       )}
 

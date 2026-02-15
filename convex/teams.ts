@@ -213,8 +213,8 @@ export const getInviteCode = query({
     const access = await verifyTeamAccess(ctx, args.teamId);
     if (!access) return null;
 
-    // Only owner can see invite code
-    if (access.role !== "owner") return null;
+    // Owner and coaches can see invite code
+    if (access.role !== "owner" && access.role !== "coach") return null;
 
     return {
       inviteCode: access.team.inviteCode,

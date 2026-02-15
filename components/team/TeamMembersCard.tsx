@@ -28,9 +28,11 @@ import { toast } from "sonner";
 interface TeamMembersCardProps {
   teamId: Id<"teams">;
   isOwner: boolean;
+  memberRole?: string;
 }
 
-export function TeamMembersCard({ teamId, isOwner }: TeamMembersCardProps) {
+export function TeamMembersCard({ teamId, isOwner, memberRole }: TeamMembersCardProps) {
+  const canSeeInviteCode = isOwner || memberRole === "coach";
   const [copied, setCopied] = useState(false);
   const [showRemoveDialog, setShowRemoveDialog] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{
@@ -134,7 +136,7 @@ export function TeamMembersCard({ teamId, isOwner }: TeamMembersCardProps) {
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Invite Code Section (Owner Only) */}
-          {isOwner && inviteCode?.inviteCode && (
+          {canSeeInviteCode && inviteCode?.inviteCode && (
             <div className="p-4 rounded-lg bg-muted/50 border">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Invite Code</span>
